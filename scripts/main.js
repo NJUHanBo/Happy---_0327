@@ -230,6 +230,7 @@ const timerState = {
 console.log('[Refactoring] Compatibility layer ready');
 console.log('[Refactoring] StorageManager available:', !!window.StorageManager);
 console.log('[Refactoring] StateManager available:', !!window.StateManager);
+console.log('[Refactoring] TaskManager available:', !!window.TaskManager);
 
 // ========================================
 // 原始应用代码继续
