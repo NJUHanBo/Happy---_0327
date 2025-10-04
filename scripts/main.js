@@ -1335,19 +1335,26 @@ function addDailyTask() {
         return;
     }
 
+    // [Refactored] Use TaskManager
+    const tm = getTaskManager();
     const task = {
-        id: Date.now(),
         name,
-        duration,
-        importance,
-        interest,
-        createdAt: new Date().toISOString(),
+        dailyTime: duration,  // TaskManager uses 'dailyTime'
+        importance: parseInt(importance),
+        interest: parseInt(interest),
         completedTimes: 0,
         streakDays: 0,
         lastCompleted: null
     };
-
-    state.dailyTasks.push(task);
+    
+    if (tm) {
+        tm.addDailyTask(task);
+    } else {
+        // Fallback
+        task.id = Date.now();
+        task.createdAt = new Date().toISOString();
+        state.dailyTasks.push(task);
+    }
     saveState();
 
     // 清空表单
@@ -1829,20 +1836,27 @@ function addTodo() {
         return;
     }
 
+    // [Refactored] Use TaskManager
+    const tm = getTaskManager();
     const todo = {
-        id: Date.now(),
         name,
         deadline,
-        duration,
-        importance,
-        urgency,
-        createdAt: new Date().toISOString(),
+        estimatedTime: duration,  // TaskManager uses 'estimatedTime'
+        importance: parseInt(importance),
+        urgency: parseInt(urgency),
         completed: false,
         completedAt: null,
         satisfaction: 0
     };
-
-    state.todos.push(todo);
+    
+    if (tm) {
+        tm.addTodo(todo);
+    } else {
+        // Fallback
+        todo.id = Date.now();
+        todo.createdAt = new Date().toISOString();
+        state.todos.push(todo);
+    }
     saveState();
 
     showDialog(`
@@ -2278,20 +2292,27 @@ function addProject() {
         return;
     }
 
+    // [Refactored] Use TaskManager
+    const tm = getTaskManager();
     const project = {
-        id: Date.now(),
         name,
         deadline,
         dailyTime,
-        importance,
-        interest,
+        importance: parseInt(importance),
+        interest: parseInt(interest),
         milestones,
-        createdAt: new Date().toISOString(),
         currentMilestone: 0,
         completedAt: null
     };
-
-    state.projects.push(project);
+    
+    if (tm) {
+        tm.addProject(project);
+    } else {
+        // Fallback
+        project.id = Date.now();
+        project.createdAt = new Date().toISOString();
+        state.projects.push(project);
+    }
     saveState();
 
     showDialog(`
@@ -4617,8 +4638,15 @@ function deleteDailyTask(taskId) {
 }
 
 // 确认删除日常任务
+// [Refactored] Now uses TaskManager
 function confirmDeleteDailyTask(taskId) {
-    state.dailyTasks = state.dailyTasks.filter(task => task.id !== taskId);
+    const tm = getTaskManager();
+    if (tm) {
+        tm.deleteDailyTask(taskId);
+    } else {
+        // Fallback to old method if TaskManager not available
+        state.dailyTasks = state.dailyTasks.filter(task => task.id !== taskId);
+    }
     saveState();
     showDailyRoutine();
 }
@@ -5574,11 +5602,18 @@ function deleteProject(projectId) {
 }
 
 // 确认删除项目
+// [Refactored] Now uses TaskManager
 function confirmDeleteProject(projectId) {
-    const projectIndex = state.projects.findIndex(p => p.id === projectId);
-    if (projectIndex === -1) return;
-    
-    state.projects.splice(projectIndex, 1);
+    const tm = getTaskManager();
+    if (tm) {
+        tm.deleteProject(projectId);
+    } else {
+        // Fallback
+        const projectIndex = state.projects.findIndex(p => p.id === projectId);
+        if (projectIndex !== -1) {
+            state.projects.splice(projectIndex, 1);
+        }
+    }
     saveState();
     
     // 添加日志
