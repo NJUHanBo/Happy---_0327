@@ -65,6 +65,7 @@
     <!-- 引入核心模块 -->
     <script src="scripts/core/storage.js"></script>
     <script src="scripts/core/state-manager.js"></script>
+    <script src="scripts/core/task-manager.js"></script>
     
     <script>
         const results = {
@@ -136,6 +137,14 @@
                 return typeof window.initStateManager === 'function';
             });
             
+            test('TaskManager已加载', () => {
+                return typeof window.TaskManager !== 'undefined';
+            });
+            
+            test('getTaskManager函数存在', () => {
+                return typeof window.getTaskManager === 'function';
+            });
+            
             // 测试2：StorageManager API
             test('StorageManager.saveState存在', () => {
                 return typeof window.StorageManager?.saveState === 'function';
@@ -200,6 +209,43 @@
                 state1.modified = true;
                 const state2 = sm.getState();
                 return !state2.modified; // 应该是未修改的
+            });
+            
+            // 测试4.5：TaskManager功能
+            test('可以创建TaskManager实例', () => {
+                try {
+                    const sm = new StateManager();
+                    const tm = new TaskManager(sm);
+                    return tm !== null;
+                } catch (e) {
+                    return e.message;
+                }
+            });
+            
+            test('TaskManager有getDailyTasks方法', () => {
+                const sm = new StateManager();
+                const tm = new TaskManager(sm);
+                return typeof tm.getDailyTasks === 'function';
+            });
+            
+            test('TaskManager有addDailyTask方法', () => {
+                const sm = new StateManager();
+                const tm = new TaskManager(sm);
+                return typeof tm.addDailyTask === 'function';
+            });
+            
+            test('TaskManager可以添加和获取任务', () => {
+                try {
+                    const sm = new StateManager();
+                    const tm = new TaskManager(sm);
+                    
+                    tm.addDailyTask({ name: 'Test Task', dailyTime: 1 });
+                    const tasks = tm.getDailyTasks();
+                    
+                    return tasks.length > 0 && tasks[0].name === 'Test Task';
+                } catch (e) {
+                    return e.message;
+                }
             });
             
             // 测试5：localStorage相关
