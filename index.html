@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>火柴人的时光管理</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/shop-extensions.css">
+    <link rel="stylesheet" href="styles/black-dog-conqueror.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 初始化界面 -->
+        <div id="init-screen" class="screen">
+            <h1>欢迎来到火柴人的时光管理</h1>
+            <div id="character-creation" class="hidden">
+                <h2>创建你的火柴人</h2>
+                <div class="character-options">
+                    <!-- 这里将放置角色选择选项 -->
+                    <!-- 图片将放在 assets/characters/ 目录下 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 主界面 -->
+        <div id="main-screen" class="screen hidden">
+            <div class="header">
+                <div class="character-stats">
+                    <div class="left-panel">
+                        <div class="avatar-container">
+                            <div class="avatar" id="avatar" onclick="uploadAvatar()">
+                                <input type="file" id="avatar-input" accept="image/*" style="display: none;">
+                                <div class="avatar-placeholder">点击上传头像</div>
+                            </div>
+                            <div class="character-info">
+                                <div class="character-name" id="character-name"></div>
+                                <div class="character-gender" id="character-gender"></div>
+                            </div>
+                            <!-- 添加火柴神图片容器 -->
+                            <div class="god-image-container" id="god-image-container">
+                                <div class="god-image" id="god-image"></div>
+                                <div class="god-name" id="god-name"></div>
+                            </div>
+                        </div>
+                        <div class="slogan">燃烧吧，火柴人！</div>
+                        <div class="time-stats">
+                            <div class="time-stat">总时长: <span id="total-days">1</span>天</div>
+                            <div class="time-stat">燃烧时长: <span id="burning-days">0</span>天</div>
+                        </div>
+                        <div class="stats">
+                            <div class="stat">体力: <span id="energy">100/100</span></div>
+                            <div class="stat">精力: <span id="spirit">100/100</span></div>
+                        </div>
+                        <div class="resources">
+                            <div class="resource">木屑: <span id="sawdust">100</span></div>
+                            <div class="resource">火苗: <span id="flame">0</span></div>
+                            <div class="resource">灰烬: <span id="ash">0</span></div>
+                        </div>
+                        <div class="status-display">
+                            <div id="vacation-status" class="status-item hidden">
+                                <span class="status-icon">🏖️</span>
+                                <span class="status-text">度假中</span>
+                                <span id="vacation-days-left"></span>
+                            </div>
+                        </div>
+                        <div class="tips-banner">
+                            <button id="tips-btn" onclick="showTips()">玩法建议</button>
+                        </div>
+                    </div>
+                    <div class="right-panel">
+                        <div class="feature-block" onclick="showWishShop()">愿望商店</div>
+                        <div class="feature-block" onclick="showStarlightBeach()">星光海滩</div>
+                        <div class="feature-block" onclick="showMagicAcademy()">魔法学院</div>
+                        <div class="feature-block" onclick="showDestinyClock()">命运时钟</div>
+                    </div>
+                    <button id="settings-btn" class="settings-btn" onclick="showSettings()">⚙️</button>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <div class="quick-actions">
+                    <button onclick="showAddDailyTasksDialog()">添加日常</button>
+                    <button onclick="showAddProjectsDialog()">添加项目</button>
+                    <button onclick="showAddTodosDialog()">添加待办</button>
+                    <button onclick="resetApp()" class="danger">重启人生</button>
+                </div>
+                <div class="task-grid">
+                    <div class="task-block" id="thought-bin">
+                        <h3>杂念垃圾桶</h3>
+                    </div>
+                    <div class="task-block" id="todo-master">
+                        <h3>蜡炬成灰</h3>
+                        <p class="task-description">火柴人燃烧自己照亮别人</p>
+                    </div>
+                    <div class="task-block" id="project-manager">
+                        <h3>筑梦建筑师</h3>
+                        <p class="task-description">火柴人也有梦想，它想成为一名建筑师</p>
+                    </div>
+                    <div class="task-block" id="daily-routine">
+                        <h3>星星之火</h3>
+                        <p class="task-description">火柴人的日常，是星星之火，终将燎原</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <div class="bottom-buttons">
+                    <button id="draft-paper" onclick="showDraftPaper()">草稿纸</button>
+                    <button id="view-logs" onclick="showLogs()">查看日志</button>
+                    <button id="task-stats" onclick="showStats()">任务统计</button>
+                    <button id="data-backup" onclick="showDataBackupDialog()">数据备份</button>
+                    <button id="end-day" onclick="endDay()">结束一天</button>
+                    <button id="exit" onclick="window.close()">退出</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 各种弹窗和对话框将在这里动态生成 -->
+        <div id="dialog-container" class="hidden"></div>
+
+        <!-- 夜晚过渡页面 -->
+        <div id="night-transition" class="screen hidden">
+            <video id="night-bg-video" autoplay loop></video>
+            <div class="night-content">
+                <div class="encouragement-message"></div>
+                <div class="night-buttons">
+                    <button onclick="startNewDay()">开始新的一天</button>
+                    <button onclick="continueRest()">继续休息</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 核心模块 - 必须在main.js之前加载 -->
+    <script src="scripts/core/storage.js"></script>
+    <script src="scripts/core/state-manager.js"></script>
+    
+    <!-- 主应用 -->
+    <script src="scripts/main.js"></script>
+    
+    <!-- 功能模块 -->
+    <script src="scripts/modules/shop.js"></script>
+    <script src="scripts/modules/shop-bridge.js"></script>
+    <script src="scripts/modules/black-dog-conqueror.js"></script>
+    <script src="scripts/modules/black-dog-bridge.js"></script>
+    <script src="scripts/modules/black-dog-task-handler.js"></script>
+    <script src="scripts/modules/black-dog-display.js"></script>
+    <script src="showDataBackupDialog.js"></script>
+</body>
+</html> 

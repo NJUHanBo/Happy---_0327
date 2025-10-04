@@ -1,0 +1,54 @@
+/* 商店扩展样式 */
+
+/* 商品描述样式 */
+.item-description {
+    font-size: 0.85em;
+    font-style: italic;
+    color: var(--text-secondary);
+    margin: 5px 0;
+    min-height: 40px; /* 确保描述有一个最小高度，使商品卡片更整齐 */
+}
+
+/* 完善商品卡片样式 */
+.shop-item {
+    display: flex;
+    flex-direction: column;
+    min-height: 200px; /* 设置最小高度使所有卡片一致 */
+    justify-content: space-between;
+}
+
+.shop-item h4 {
+    margin-top: 0;
+}
+
+.shop-item button {
+    margin-top: auto; /* 按钮始终在底部 */
+}
+
+/* 激活效果列表样式增强 */
+.active-effects {
+    background-color: var(--secondary-bg);
+    border-radius: 10px;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+}
+
+.effect-item {
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+}
+
+.effect-icon {
+    font-size: 1.2em;
+    margin-right: 10px;
+    display: inline-block;
+    width: 25px;
+    text-align: center;
+}
+
+/* 确保商品按钮在禁用时明确显示原因 */
+.shop-item button:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+} 

@@ -1,0 +1,418 @@
+/* 命运时钟专属版样式 */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    /* 莫兰迪色系 - 与主界面一致 */
+    --primary-bg: #E8E6E1;
+    --secondary-bg: #D5D0C8;
+    --accent-1: #B6A6A0;
+    --accent-2: #9B8B85;
+    --accent-3: #7D6F6A;
+    --text-primary: #4A413E;
+    --text-secondary: #6B5F5B;
+    --success: #A3B899;
+    --warning: #D4B499;
+    --error: #C7A9A9;
+    --font-main: "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--primary-bg);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: var(--secondary-bg);
+    border-radius: 20px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* 页面标题 */
+.header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 30px 0;
+    background-color: var(--accent-1);
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: white;
+    opacity: 0.9;
+    margin-bottom: 20px;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.back-btn, .analysis-btn {
+    background-color: var(--accent-2);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+.back-btn:hover, .analysis-btn:hover {
+    background-color: var(--accent-3);
+}
+
+.analysis-btn {
+    background-color: var(--warning);
+}
+
+.analysis-btn:hover {
+    background-color: var(--error);
+}
+
+/* 八字显示区域 */
+.bazi-section {
+    margin-bottom: 40px;
+}
+
+.bazi-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.bazi-display {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.pillar {
+    background-color: var(--secondary-bg);
+    border: 2px solid var(--accent-1);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    min-width: 100px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.pillar:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.pillar-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+
+.gan {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--warning);
+    margin-bottom: 5px;
+}
+
+.zhi {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--success);
+}
+
+.birth-info {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+.birth-info .gender {
+    margin-left: 20px;
+    color: var(--accent-2);
+    font-weight: 600;
+}
+
+/* 图表区域 */
+.charts-section {
+    margin-bottom: 40px;
+}
+
+.charts-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.charts-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 20px;
+}
+
+.chart-placeholder {
+    background-color: var(--accent-1);
+    border: 2px dashed var(--accent-2);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.chart-placeholder:hover {
+    transform: translateY(-5px);
+}
+
+.chart-placeholder h3 {
+    color: white;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.placeholder-content {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-bg);
+    border-radius: 8px;
+    position: relative;
+}
+
+canvas {
+    max-width: 100%;
+    height: 200px !important;
+    width: 100% !important;
+}
+
+/* 计分规则区域 */
+.scoring-rules {
+    margin-bottom: 40px;
+}
+
+.scoring-rules h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.rules-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.tiangan-rules, .dizhi-rules {
+    background-color: var(--secondary-bg);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tiangan-rules h3, .dizhi-rules h3 {
+    color: var(--text-primary);
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 1.3rem;
+}
+
+.score-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.score-table th,
+.score-table td {
+    padding: 10px 15px;
+    text-align: center;
+    border-bottom: 1px solid var(--accent-1);
+}
+
+.score-table th {
+    background-color: var(--accent-1);
+    color: white;
+    font-weight: 600;
+}
+
+.score-table tr:nth-child(even) {
+    background-color: rgba(182, 166, 160, 0.2);
+}
+
+.score-table tr:hover {
+    background-color: rgba(182, 166, 160, 0.3);
+}
+
+.score-table td:first-child {
+    font-weight: 700;
+    color: var(--accent-2);
+    font-size: 1.1rem;
+}
+
+.score-table td:last-child {
+    font-weight: 700;
+    color: var(--success);
+    font-size: 1.1rem;
+}
+
+/* 最终计分规则详解 */
+.final-scoring-rule {
+    margin-bottom: 40px;
+    background-color: var(--secondary-bg);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.final-scoring-rule h2 {
+    color: var(--text-primary);
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.rule-section {
+    margin-bottom: 30px;
+}
+
+.rule-section h3 {
+    color: var(--accent-2);
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+}
+
+.formula {
+    background-color: var(--accent-1);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 15px 0;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.formula strong {
+    font-size: 1.1rem;
+}
+
+.layer-explanation {
+    background-color: var(--primary-bg);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 15px 0;
+    border-left: 4px solid var(--accent-2);
+}
+
+.layer-explanation h4 {
+    color: var(--accent-2);
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.layer-explanation p {
+    margin-bottom: 8px;
+    line-height: 1.8;
+}
+
+.layer-explanation strong {
+    color: var(--warning);
+}
+
+
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .header h1 {
+        font-size: 2rem;
+    }
+    
+    .bazi-display {
+        gap: 15px;
+    }
+    
+    .pillar {
+        min-width: 80px;
+        padding: 15px;
+    }
+    
+    .gan, .zhi {
+        font-size: 1.5rem;
+    }
+    
+    .charts-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(4, 1fr);
+    }
+    
+    .rules-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .final-scoring-rule {
+        padding: 20px;
+    }
+    
+    .layer-explanation {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header {
+        padding: 20px 15px;
+    }
+    
+    .header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .subtitle {
+        font-size: 1rem;
+    }
+    
+    .bazi-display {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .pillar {
+        width: 100%;
+        max-width: 200px;
+    }
+}

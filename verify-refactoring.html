@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>重构验证测试</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        .test-result {
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .pass { background: #1e7e34; }
+        .fail { background: #c82333; }
+        .warn { background: #e0a800; }
+        .summary {
+            margin-top: 20px;
+            padding: 15px;
+            background: #2d2d30;
+            border-radius: 8px;
+            font-size: 18px;
+        }
+        h1 { color: #4ec9b0; }
+        h2 { color: #569cd6; }
+        pre { 
+            background: #2d2d30; 
+            padding: 10px; 
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .action-buttons {
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Linus式重构验证</h1>
+    <p>验证StorageManager和StateManager是否正确集成...</p>
+    
+    <div class="action-buttons">
+        <button class="btn-primary" onclick="runTests()">▶️ 运行测试</button>
+        <button class="btn-success" onclick="createBackup()">💾 创建备份</button>
+        <button class="btn-danger" onclick="clearConsole()">🗑️ 清空控制台</button>
+    </div>
+    
+    <div id="test-results"></div>
+    <div id="summary" class="summary" style="display:none;"></div>
+    
+    <!-- 引入核心模块 -->
+    <script src="scripts/core/storage.js"></script>
+    <script src="scripts/core/state-manager.js"></script>
+    
+    <script>
+        const results = {
+            passed: 0,
+            failed: 0,
+            warnings: 0,
+            tests: []
+        };
+        
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            
+            let icon = '✅';
+            if (type === 'fail') icon = '❌';
+            if (type === 'warn') icon = '⚠️';
+            
+            div.textContent = `${icon} ${message}`;
+            document.getElementById('test-results').appendChild(div);
+        }
+        
+        function test(name, fn) {
+            try {
+                const result = fn();
+                if (result === true) {
+                    log(`${name}`, 'pass');
+                    results.passed++;
+                    results.tests.push({ name, status: 'pass' });
+                } else if (result === 'warning') {
+                    log(`${name}`, 'warn');
+                    results.warnings++;
+                    results.tests.push({ name, status: 'warn' });
+                } else {
+                    log(`${name}: ${result}`, 'fail');
+                    results.failed++;
+                    results.tests.push({ name, status: 'fail', error: result });
+                }
+            } catch (error) {
+                log(`${name}: ${error.message}`, 'fail');
+                results.failed++;
+                results.tests.push({ name, status: 'fail', error: error.message });
+            }
+        }
+        
+        function runTests() {
+            // 清空结果
+            document.getElementById('test-results').innerHTML = '<h2>📋 测试结果</h2>';
+            results.passed = 0;
+            results.failed = 0;
+            results.warnings = 0;
+            results.tests = [];
+            
+            log('开始测试...', 'info');
+            
+            // 测试1：模块加载
+            test('StorageManager已加载', () => {
+                return typeof window.StorageManager !== 'undefined';
+            });
+            
+            test('StateManager已加载', () => {
+                return typeof window.StateManager !== 'undefined';
+            });
+            
+            test('getStateManager函数存在', () => {
+                return typeof window.getStateManager === 'function';
+            });
+            
+            test('initStateManager函数存在', () => {
+                return typeof window.initStateManager === 'function';
+            });
+            
+            // 测试2：StorageManager API
+            test('StorageManager.saveState存在', () => {
+                return typeof window.StorageManager?.saveState === 'function';
+            });
+            
+            test('StorageManager.loadState存在', () => {
+                return typeof window.StorageManager?.loadState === 'function';
+            });
+            
+            test('StorageManager.exportData存在', () => {
+                return typeof window.StorageManager?.exportData === 'function';
+            });
+            
+            test('StorageManager.importData存在', () => {
+                return typeof window.StorageManager?.importData === 'function';
+            });
+            
+            test('StorageManager.clearData存在', () => {
+                return typeof window.StorageManager?.clearData === 'function';
+            });
+            
+            test('StorageManager.CURRENT_VERSION存在', () => {
+                return typeof window.StorageManager?.CURRENT_VERSION !== 'undefined';
+            });
+            
+            // 测试3：StateManager实例化
+            test('可以创建StateManager实例', () => {
+                try {
+                    const sm = new StateManager();
+                    return sm !== null;
+                } catch (e) {
+                    return e.message;
+                }
+            });
+            
+            test('StateManager有getState方法', () => {
+                const sm = new StateManager();
+                return typeof sm.getState === 'function';
+            });
+            
+            test('StateManager有set方法', () => {
+                const sm = new StateManager();
+                return typeof sm.set === 'function';
+            });
+            
+            test('StateManager有get方法', () => {
+                const sm = new StateManager();
+                return typeof sm.get === 'function';
+            });
+            
+            // 测试4：功能测试
+            test('StateManager可以get/set数据', () => {
+                const sm = new StateManager();
+                sm.set('test.value', 123);
+                const value = sm.get('test.value');
+                return value === 123 ? true : `期望123，得到${value}`;
+            });
+            
+            test('StateManager.getState返回深拷贝', () => {
+                const sm = new StateManager();
+                const state1 = sm.getState();
+                state1.modified = true;
+                const state2 = sm.getState();
+                return !state2.modified; // 应该是未修改的
+            });
+            
+            // 测试5：localStorage相关
+            test('可以读取localStorage', () => {
+                try {
+                    const test = localStorage.getItem('matchstickTimeManager');
+                    return true;
+                } catch (e) {
+                    return e.message;
+                }
+            });
+            
+            test('StorageManager.loadState可以调用', () => {
+                try {
+                    const result = StorageManager.loadState();
+                    return true; // null也是正常的
+                } catch (e) {
+                    return e.message;
+                }
+            });
+            
+            // 测试6：数据版本
+            const savedData = localStorage.getItem('matchstickTimeManager');
+            if (savedData) {
+                test('localStorage数据可以解析', () => {
+                    try {
+                        JSON.parse(savedData);
+                        return true;
+                    } catch (e) {
+                        return e.message;
+                    }
+                });
+                
+                test('数据包含version字段', () => {
+                    try {
+                        const data = JSON.parse(savedData);
+                        return 'version' in data || 'warning';
+                    } catch (e) {
+                        return e.message;
+                    }
+                });
+            }
+            
+            // 显示总结
+            showSummary();
+        }
+        
+        function showSummary() {
+            const summaryDiv = document.getElementById('summary');
+            summaryDiv.style.display = 'block';
+            
+            const total = results.passed + results.failed + results.warnings;
+            let status = '✅ 全部通过';
+            let color = '#28a745';
+            
+            if (results.failed > 0) {
+                status = '❌ 有失败';
+                color = '#dc3545';
+            } else if (results.warnings > 0) {
+                status = '⚠️ 有警告';
+                color = '#ffc107';
+            }
+            
+            summaryDiv.innerHTML = `
+                <h2 style="color:${color}">${status}</h2>
+                <p>总测试数: ${total}</p>
+                <p style="color:#28a745">✅ 通过: ${results.passed}</p>
+                <p style="color:#dc3545">❌ 失败: ${results.failed}</p>
+                <p style="color:#ffc107">⚠️ 警告: ${results.warnings}</p>
+                
+                ${results.failed === 0 ? `
+                    <hr style="border-color:#4ec9b0; margin:20px 0">
+                    <h3 style="color:#4ec9b0">🎉 重构成功！</h3>
+                    <p>下一步:</p>
+                    <ol style="line-height:1.8">
+                        <li>打开主应用测试功能</li>
+                        <li>创建数据备份</li>
+                        <li>提交代码: <code>git commit -am "Refactoring Phase 0 complete"</code></li>
+                        <li>阅读 <code>重构完成-下一步.md</code></li>
+                    </ol>
+                ` : `
+                    <hr style="border-color:#dc3545; margin:20px 0">
+                    <h3 style="color:#dc3545">⚠️ 需要修复</h3>
+                    <p>请检查失败的测试项</p>
+                `}
+                
+                <hr style="border-color:#4ec9b0; margin:20px 0">
+                <h3>📊 LocalStorage信息</h3>
+                <pre>${getStorageInfo()}</pre>
+            `;
+        }
+        
+        function getStorageInfo() {
+            try {
+                const data = localStorage.getItem('matchstickTimeManager');
+                if (!data) {
+                    return '暂无数据（新用户）';
+                }
+                
+                const parsed = JSON.parse(data);
+                return JSON.stringify({
+                    version: parsed.version || '未设置',
+                    character: parsed.character?.name || '未创建',
+                    dataSize: (data.length / 1024).toFixed(2) + ' KB',
+                    lastSaved: parsed.lastSaved || '未知',
+                    flame: parsed.stats?.flame || 0,
+                    totalDays: parsed.stats?.totalDays || 0
+                }, null, 2);
+            } catch (e) {
+                return '无法读取: ' + e.message;
+            }
+        }
+        
+        function createBackup() {
+            try {
+                const data = localStorage.getItem('matchstickTimeManager');
+                if (!data) {
+                    alert('没有数据需要备份');
+                    return;
+                }
+                
+                const backupKey = 'matchstickTimeManager_backup_' + new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
+                localStorage.setItem(backupKey, data);
+                
+                const backups = Object.keys(localStorage).filter(k => k.includes('backup'));
+                alert(`✅ 备份已创建: ${backupKey}\n\n当前有 ${backups.length} 个备份`);
+                
+                console.log('备份列表:');
+                backups.forEach(k => console.log('  -', k));
+            } catch (e) {
+                alert('❌ 备份失败: ' + e.message);
+            }
+        }
+        
+        function clearConsole() {
+            console.clear();
+            console.log('Console cleared');
+        }
+        
+        // 自动运行测试
+        window.addEventListener('load', () => {
+            setTimeout(runTests, 500);
+        });
+    </script>
+</body>
+</html>
+

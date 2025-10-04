@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>命运时钟 - 专属版</title>
+    <link rel="stylesheet" href="static/destiny_clock.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <!-- 页面标题 -->
+            <header class="header">
+                <h1>🔮 命运时钟 - 专属版</h1>
+                <p class="subtitle">基于专属计分规则的时运分析</p>
+                <div class="header-buttons">
+                    <button class="back-btn" onclick="goBack()">← 返回主页</button>
+                    <button class="analysis-btn" onclick="goToMingliAnalysis()">🌟 命理分析</button>
+                </div>
+            </header>
+
+            <!-- 八字显示区域 -->
+            <section class="bazi-section">
+                <h2>📅 本命八字</h2>
+                <div class="bazi-display">
+                    <div class="pillar">
+                        <div class="pillar-label">年柱</div>
+                        <div class="gan" id="year-gan">乙</div>
+                        <div class="zhi" id="year-zhi">亥</div>
+                    </div>
+                    <div class="pillar">
+                        <div class="pillar-label">月柱</div>
+                        <div class="gan" id="month-gan">壬</div>
+                        <div class="zhi" id="month-zhi">午</div>
+                    </div>
+                    <div class="pillar">
+                        <div class="pillar-label">日柱</div>
+                        <div class="gan" id="day-gan">癸</div>
+                        <div class="zhi" id="day-zhi">酉</div>
+                    </div>
+                    <div class="pillar">
+                        <div class="pillar-label">时柱</div>
+                        <div class="gan" id="hour-gan">甲</div>
+                        <div class="zhi" id="hour-zhi">寅</div>
+                    </div>
+                </div>
+                <p class="birth-info">
+                    <span>出生：1995年6月11日 寅时</span>
+                    <span class="gender">男</span>
+                </p>
+            </section>
+
+            <!-- 预留图表区域 -->
+            <section class="charts-section">
+                <h2>📊 运势趋势图表</h2>
+                <div class="charts-container">
+                    <div class="chart-placeholder">
+                        <h3>大运图表</h3>
+                        <div class="placeholder-content">
+                            <canvas id="dayun-chart" width="300" height="150"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-placeholder">
+                        <h3>流年图表</h3>
+                        <div class="placeholder-content">
+                            <canvas id="liunian-chart" width="300" height="150"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-placeholder">
+                        <h3>流月图表</h3>
+                        <div class="placeholder-content">
+                            <canvas id="liuyue-chart" width="300" height="150"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-placeholder">
+                        <h3>流日图表</h3>
+                        <div class="placeholder-content">
+                            <canvas id="liuri-chart" width="300" height="150"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 专属计分规则 -->
+            <section class="scoring-rules">
+                <h2>⚖️ 专属计分规则</h2>
+                <div class="rules-container">
+                    <div class="tiangan-rules">
+                        <h3>天干分数</h3>
+                        <table class="score-table">
+                            <thead>
+                                <tr>
+                                    <th>天干</th>
+                                    <th>分数</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>甲</td><td>1</td></tr>
+                                <tr><td>乙</td><td>4</td></tr>
+                                <tr><td>丙</td><td>2</td></tr>
+                                <tr><td>丁</td><td>3</td></tr>
+                                <tr><td>戊</td><td>8</td></tr>
+                                <tr><td>己</td><td>5</td></tr>
+                                <tr><td>庚</td><td>9</td></tr>
+                                <tr><td>辛</td><td>7</td></tr>
+                                <tr><td>壬</td><td>10</td></tr>
+                                <tr><td>癸</td><td>6</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="dizhi-rules">
+                        <h3>地支分数</h3>
+                        <table class="score-table">
+                            <thead>
+                                <tr>
+                                    <th>地支</th>
+                                    <th>分数</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>子</td><td>12</td></tr>
+                                <tr><td>丑</td><td>10</td></tr>
+                                <tr><td>寅</td><td>1</td></tr>
+                                <tr><td>卯</td><td>2</td></tr>
+                                <tr><td>辰</td><td>3</td></tr>
+                                <tr><td>巳</td><td>5</td></tr>
+                                <tr><td>午</td><td>4</td></tr>
+                                <tr><td>未</td><td>6</td></tr>
+                                <tr><td>申</td><td>11</td></tr>
+                                <tr><td>酉</td><td>8</td></tr>
+                                <tr><td>戌</td><td>9</td></tr>
+                                <tr><td>亥</td><td>7</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 流日最终计分规则详解 -->
+            <section class="final-scoring-rule">
+                <h2>🎯 流日最终计分规则 (Final Daily Score Rule)</h2>
+                
+                <div class="rule-section">
+                    <h3>一、核心公式</h3>
+                    <div class="formula">
+                        <strong>流日最终得分 = ①当日干支分数 + ②当月干支分数 + ③当年流年干支分数 + ④当前大运干支分数</strong>
+                    </div>
+                    <p>这个公式包含了四个能量层级，从最宏观的背景到最微观的当下，缺一不可。</p>
+                </div>
+
+                <div class="rule-section">
+                    <h3>二、四个能量层级的详细解析</h3>
+                    
+                    <div class="layer-explanation">
+                        <h4>第一层：④ 大运干支分数 (The Great Cycle Score) - 决定十年的"气候"</h4>
+                        <p><strong>定义：</strong>指一个人当前所处的十年大运的干支所代表的分数。</p>
+                        <p><strong>作用：</strong>它为这十年设定了一个最根本、最宏观的能量背景或"基调"。这是一个长期的、稳定的影响，如同决定一个地区是热带还是寒带的"大气候"。</p>
+                        <p><strong>计算：</strong>找出当天的日期所属的十年大运干支，计算其 天干分 + 地支分。</p>
+                        <p><strong>例如：</strong>2017-2026年，大运为己卯，分数为 己(5)+卯(2)=7分。这7分是这十年里每一天的"气候基础分"。</p>
+                    </div>
+
+                    <div class="layer-explanation">
+                        <h4>第二层：③ 流年干支分数 (The Annual Score) - 决定一年的"季节"</h4>
+                        <p><strong>定义：</strong>指当前公历年份的干支所代表的分数。</p>
+                        <p><strong>作用：</strong>它在十年"大气候"的背景下，定义了这一整年的能量特性。如同在热带气候中，也会有雨季和旱季之分。</p>
+                        <p><strong>计算：</strong>找出当年的流年干支，计算其 天干分 + 地支分。</p>
+                        <p><strong>例如：</strong>2025年为乙巳年，分数为 乙(4)+巳(5)=9分。这9分是2025年每一天的"季节基础分"。</p>
+                    </div>
+
+                    <div class="layer-explanation">
+                        <h4>第三层：② 流月干支分数 (The Monthly Score) - 决定一月的"天气"</h4>
+                        <p><strong>定义：</strong>指当前节气月份的干支所代表的分数。</p>
+                        <p><strong>作用：</strong>它在年度"季节"中，定义了这一个月的具体能量波动。如同在雨季中，也会有暴雨天和毛毛雨天。</p>
+                        <p><strong>计算：</strong>根据当天的日期所属的节气（如立春后、惊蛰后等），找出对应的流月干支，计算其 天干分 + 地支分。</p>
+                        <p><strong>例如：</strong>2025年8月（立秋后），流月为甲申，分数为 甲(1)+申(11)=12分。这12分是这个月每一天的"天气基础分"。</p>
+                    </div>
+
+                    <div class="layer-explanation">
+                        <h4>第四层：① 当日干支分数 (The Daily Score) - 决定此刻的"风雨雷电"</h4>
+                        <p><strong>定义：</strong>指当天本身的干支所代表的分数。</p>
+                        <p><strong>作用：</strong>这是最直接、最具体、波动最剧烈的能量层。它决定了这一天最核心的能量特质，是所有宏观背景能量的最终"落脚点"。</p>
+                        <p><strong>计算：</strong>找出当天的日干支，计算其 天干分 + 地支分。</p>
+                        <p><strong>例如：</strong>2025年8月11日为壬子日，分数为 壬(10)+子(12)=22分。这22分是当天独有的"即时能量"。</p>
+                    </div>
+                </div>
+            </section>
+
+
+        </div>
+    </div>
+
+    <script src="static/destiny_clock.js"></script>
+</body>
+</html>

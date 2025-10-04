@@ -1,0 +1,240 @@
+/* 黑狗征服者样式 */
+
+/* 特效容器 */
+.black-dog-conqueror-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    pointer-events: none;
+    animation: popup 0.5s ease-out forwards;
+}
+
+/* 特效内容 */
+.black-dog-conqueror-effect {
+    background-color: rgba(30, 30, 40, 0.9);
+    color: #fff;
+    border-radius: 15px;
+    padding: 20px 30px;
+    box-shadow: 0 0 20px rgba(255, 100, 0, 0.8), 0 0 40px rgba(255, 100, 0, 0.4);
+    text-align: center;
+    min-width: 300px;
+    max-width: 80%;
+}
+
+/* 特效标题 */
+.effect-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ff6400;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    animation: pulse 1s infinite alternate;
+}
+
+/* 特效内容 */
+.effect-details {
+    font-size: 16px;
+}
+
+.effect-details p {
+    margin: 10px 0;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeInUp 0.3s forwards;
+}
+
+/* 连击次数样式 */
+.effect-combo {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffcc00;
+    margin-top: 15px !important;
+}
+
+/* 统计页面样式 */
+.black-dog-stats {
+    background-color: rgba(255, 100, 0, 0.1);
+    border-left: 4px solid #ff6400;
+    padding: 10px 15px;
+    margin-top: 20px;
+    border-radius: 0 8px 8px 0;
+}
+
+.black-dog-stats h3 {
+    color: #ff6400;
+    margin-top: 0;
+}
+
+/* 动画效果 */
+@keyframes popup {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -40%);
+    }
+    50% {
+        opacity: 1;
+        transform: translate(-50%, -55%);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        text-shadow: 0 0 5px rgba(255, 100, 0, 0.8), 0 0 10px rgba(255, 100, 0, 0.4);
+    }
+    100% {
+        text-shadow: 0 0 10px rgba(255, 100, 0, 1), 0 0 20px rgba(255, 100, 0, 0.8), 0 0 30px rgba(255, 100, 0, 0.4);
+    }
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 为每个效果项目添加延迟动画 */
+.effect-details p:nth-child(1) {
+    animation-delay: 0.1s;
+}
+.effect-details p:nth-child(2) {
+    animation-delay: 0.2s;
+}
+.effect-details p:nth-child(3) {
+    animation-delay: 0.3s;
+}
+.effect-details p:nth-child(4) {
+    animation-delay: 0.4s;
+}
+.effect-details p:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+/* 淡出动画 */
+.black-dog-conqueror-container.fade-out {
+    animation: fadeOut 1s forwards;
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -40%);
+    }
+}
+
+/* 黑狗任务醒目标志 */
+.black-dog-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: #1a1a1a;
+    color: #ff6400;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    box-shadow: 0 0 10px rgba(255, 100, 0, 0.6);
+    transform: rotate(5deg);
+    border: 2px solid #ff6400;
+    animation: pulseBadge 1.5s infinite alternate;
+    z-index: 10;
+}
+
+@keyframes pulseBadge {
+    0% {
+        box-shadow: 0 0 5px rgba(255, 100, 0, 0.6);
+        transform: rotate(5deg) scale(1);
+    }
+    100% {
+        box-shadow: 0 0 15px rgba(255, 100, 0, 0.8), 0 0 5px rgba(255, 255, 0, 0.6);
+        transform: rotate(5deg) scale(1.05);
+    }
+}
+
+/* 黑狗任务卡片样式 */
+.task-card.black-dog-task, .todo-card.black-dog-task, .project-card.black-dog-task {
+    position: relative;
+    border: 2px solid #ff6400 !important;
+    box-shadow: 0 0 15px rgba(255, 100, 0, 0.3) !important;
+    overflow: visible !important;
+}
+
+.task-card.black-dog-task::before, .todo-card.black-dog-task::before, .project-card.black-dog-task::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 100, 0, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+/* 黑狗任务对话框样式 */
+.black-dog-task-title {
+    color: #ff6400 !important;
+    text-align: center;
+    font-size: 24px !important;
+    padding: 5px 0;
+    text-shadow: 0 0 10px rgba(255, 100, 0, 0.4);
+    margin-bottom: 15px !important;
+    border-bottom: 2px solid #ff6400;
+}
+
+.black-dog-task-info {
+    background-color: rgba(26, 26, 26, 0.9);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-left: 4px solid #ff6400;
+    color: #f0f0f0 !important;
+}
+
+.black-dog-task-info p {
+    margin: 10px 0;
+    font-size: 15px;
+    color: #ffffff;
+    line-height: 1.5;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.black-dog-highlight {
+    color: #ff6400;
+    font-weight: bold;
+    padding: 0 3px;
+}
+
+.black-dog-start-btn {
+    background-color: #ff6400 !important;
+    color: #fff !important;
+    font-weight: bold;
+    padding: 12px 24px !important;
+    font-size: 16px !important;
+    border-radius: 30px !important;
+    border: none !important;
+    box-shadow: 0 5px 15px rgba(255, 100, 0, 0.4) !important;
+    transition: all 0.3s ease !important;
+}
+
+.black-dog-start-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 20px rgba(255, 100, 0, 0.6) !important;
+}
+
+.black-dog-start-btn:active {
+    transform: translateY(1px) !important;
+    box-shadow: 0 3px 10px rgba(255, 100, 0, 0.3) !important;
+} 

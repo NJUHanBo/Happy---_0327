@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>命理分析 - AI智能解读</title>
+    <link rel="stylesheet" href="static/destiny_clock.css">
+    <link rel="stylesheet" href="static/mingli_analysis.css">
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <!-- 页面标题 -->
+            <header class="header">
+                <h1>🌟 命理分析 - AI智能解读</h1>
+                <p class="subtitle">基于整合性生命剧本的个性化分析</p>
+                <div class="header-buttons">
+                    <button class="back-btn" onclick="window.location.href='destiny_clock.html'">← 返回命运时钟</button>
+                    <button class="home-btn" onclick="goBack()">🏠 返回主页</button>
+                </div>
+            </header>
+
+            <!-- 输入区域 -->
+            <section class="input-section">
+                <h2>请输入您的八字</h2>
+                <div class="input-container">
+                    <div class="bazi-input-grid">
+                        <div class="input-group">
+                            <label>年柱</label>
+                            <div class="gan-zhi-input">
+                                <input type="text" id="year-gan" placeholder="天干" maxlength="1" class="gan-input">
+                                <input type="text" id="year-zhi" placeholder="地支" maxlength="1" class="zhi-input">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>月柱</label>
+                            <div class="gan-zhi-input">
+                                <input type="text" id="month-gan" placeholder="天干" maxlength="1" class="gan-input">
+                                <input type="text" id="month-zhi" placeholder="地支" maxlength="1" class="zhi-input">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>日柱</label>
+                            <div class="gan-zhi-input">
+                                <input type="text" id="day-gan" placeholder="天干" maxlength="1" class="gan-input">
+                                <input type="text" id="day-zhi" placeholder="地支" maxlength="1" class="zhi-input">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>时柱</label>
+                            <div class="gan-zhi-input">
+                                <input type="text" id="hour-gan" placeholder="天干" maxlength="1" class="gan-input">
+                                <input type="text" id="hour-zhi" placeholder="地支" maxlength="1" class="zhi-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-hint">
+                        <p>示例：甲子 乙丑 丙寅 丁卯</p>
+                        <p>天干：甲乙丙丁戊己庚辛壬癸</p>
+                        <p>地支：子丑寅卯辰巳午未申酉戌亥</p>
+                    </div>
+                    <button class="analyze-btn" id="analyze-btn" onclick="analyzeMingli()">
+                        <span class="btn-text">开始分析</span>
+                        <span class="loading-spinner" style="display: none;">
+                            <svg class="spinner" viewBox="0 0 50 50">
+                                <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- 分析结果区域 -->
+            <section class="result-section" id="result-section" style="display: none;">
+                <h2>📊 分析结果</h2>
+                <div class="result-container">
+                    <div class="loading-container" id="loading-container">
+                        <div class="loading-animation">
+                            <svg class="spinner" viewBox="0 0 50 50">
+                                <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+                            </svg>
+                            <p>AI正在深度分析您的八字...</p>
+                        </div>
+                    </div>
+                    <div class="result-content" id="result-content" style="display: none;">
+                        <!-- 分析结果将在这里显示 -->
+                    </div>
+                    <div class="save-section" id="save-section" style="display: none;">
+                        <button class="save-btn" onclick="saveAnalysisResult()">💾 保存分析结果</button>
+                        <span class="save-status" id="saveStatus"></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 使用说明 -->
+            <section class="instructions">
+                <h2>📖 使用说明</h2>
+                <div class="instruction-content">
+                    <ul>
+                        <li>请输入完整的八字信息（四柱八字）</li>
+                        <li>天干：甲、乙、丙、丁、戊、己、庚、辛、壬、癸</li>
+                        <li>地支：子、丑、寅、卯、辰、巳、午、未、申、酉、戌、亥</li>
+                        <li>AI将基于"整合性生命剧本"范式进行深度分析</li>
+                        <li>分析包含：生命剧本、身心机制、状态评估、调节建议等</li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="static/mingli_analysis.js"></script>
+</body>
+</html>
