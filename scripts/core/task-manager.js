@@ -23,6 +23,10 @@ class TaskManager {
      * 获取所有日常任务
      */
     getDailyTasks() {
+        // HOTFIX: Read directly from global state for UI compatibility
+        if (typeof window !== 'undefined' && window.state) {
+            return window.state.dailyTasks || [];
+        }
         return this.state.get('dailyTasks') || [];
     }
     
@@ -77,6 +81,11 @@ class TaskManager {
         tasks[index] = { ...tasks[index], ...updates };
         this.state.set('dailyTasks', tasks);
         
+        // HOTFIX: Also update global state
+        if (typeof window !== 'undefined' && window.state) {
+            window.state.dailyTasks = tasks;
+        }
+        
         console.log('[TaskManager] Daily task updated:', taskId);
         return tasks[index];
     }
@@ -108,7 +117,8 @@ class TaskManager {
      * 完成日常任务
      */
     completeDailyTask(taskId, actualTime, quality) {
-        const task = this.getDailyTasks().find(t => t.id === taskId);
+        const tasks = this.getDailyTasks();
+        const task = tasks.find(t => t.id === taskId);
         
         if (!task) {
             console.error('[TaskManager] Daily task not found:', taskId);
@@ -138,6 +148,10 @@ class TaskManager {
      * 获取所有项目
      */
     getProjects() {
+        // HOTFIX: Read directly from global state
+        if (typeof window !== 'undefined' && window.state) {
+            return window.state.projects || [];
+        }
         return this.state.get('projects') || [];
     }
     
@@ -191,6 +205,11 @@ class TaskManager {
         
         projects[index] = { ...projects[index], ...updates };
         this.state.set('projects', projects);
+        
+        // HOTFIX: Also update global state
+        if (typeof window !== 'undefined' && window.state) {
+            window.state.projects = projects;
+        }
         
         console.log('[TaskManager] Project updated:', projectId);
         return projects[index];
@@ -270,6 +289,10 @@ class TaskManager {
      * 获取所有待办
      */
     getTodos() {
+        // HOTFIX: Read directly from global state
+        if (typeof window !== 'undefined' && window.state) {
+            return window.state.todos || [];
+        }
         return this.state.get('todos') || [];
     }
     
@@ -322,6 +345,11 @@ class TaskManager {
         todos[index] = { ...todos[index], ...updates };
         this.state.set('todos', todos);
         
+        // HOTFIX: Also update global state
+        if (typeof window !== 'undefined' && window.state) {
+            window.state.todos = todos;
+        }
+        
         console.log('[TaskManager] Todo updated:', todoId);
         return todos[index];
     }
@@ -339,6 +367,12 @@ class TaskManager {
         }
         
         this.state.set('todos', filtered);
+        
+        // HOTFIX: Also update global state
+        if (typeof window !== 'undefined' && window.state) {
+            window.state.todos = filtered;
+        }
+        
         console.log('[TaskManager] Todo deleted:', todoId);
         return true;
     }
