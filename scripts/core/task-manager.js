@@ -53,6 +53,11 @@ class TaskManager {
         tasks.push(newTask);
         this.state.set('dailyTasks', tasks);
         
+        // HOTFIX: Also update global state for UI compatibility
+        if (typeof window !== 'undefined' && window.state) {
+            window.state.dailyTasks = tasks;
+        }
+        
         console.log('[TaskManager] Daily task added:', newTask.name);
         return newTask;
     }
@@ -89,6 +94,12 @@ class TaskManager {
         }
         
         this.state.set('dailyTasks', filtered);
+        
+        // HOTFIX: Also update global state
+        if (typeof window !== 'undefined' && window.state) {
+            window.state.dailyTasks = filtered;
+        }
+        
         console.log('[TaskManager] Daily task deleted:', taskId);
         return true;
     }
@@ -157,6 +168,11 @@ class TaskManager {
         projects.push(newProject);
         this.state.set('projects', projects);
         
+        // HOTFIX: Also update global state
+        if (typeof window !== 'undefined' && window.state) {
+            window.state.projects = projects;
+        }
+        
         console.log('[TaskManager] Project added:', newProject.name);
         return newProject;
     }
@@ -193,6 +209,12 @@ class TaskManager {
         }
         
         this.state.set('projects', filtered);
+        
+        // HOTFIX: Also update global state
+        if (typeof window !== 'undefined' && window.state) {
+            window.state.projects = filtered;
+        }
+        
         console.log('[TaskManager] Project deleted:', projectId);
         return true;
     }
@@ -275,6 +297,11 @@ class TaskManager {
         
         todos.push(newTodo);
         this.state.set('todos', todos);
+        
+        // HOTFIX: Also update global state
+        if (typeof window !== 'undefined' && window.state) {
+            window.state.todos = todos;
+        }
         
         console.log('[TaskManager] Todo added:', newTodo.name);
         return newTodo;
