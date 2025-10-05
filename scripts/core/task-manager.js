@@ -42,10 +42,13 @@ class TaskManager {
         }
         
         // 设置默认值
+        // 兼容性：同时保存 duration 和 dailyTime（都是分钟）
+        const durationMinutes = task.dailyTime || task.duration || 0;
         const newTask = {
             id: task.id,
             name: task.name,
-            dailyTime: task.dailyTime || 0,
+            duration: durationMinutes,      // main.js使用
+            dailyTime: durationMinutes,     // 向后兼容
             importance: task.importance || 3,
             interest: task.interest || 3,
             streak: 0,
@@ -125,7 +128,9 @@ class TaskManager {
             return null;
         }
         
-        const timeRatio = actualTime / (task.duration * 60);
+        // 兼容 duration(分钟) 和 dailyTime(分钟) 字段
+        const durationMinutes = task.duration || task.dailyTime || 1;
+        const timeRatio = actualTime / (durationMinutes * 60);
         const today = new Date().toISOString().split('T')[0];
         
         // 更新任务状态和streak
@@ -338,11 +343,14 @@ class TaskManager {
             todo.id = Date.now();
         }
         
+        // 兼容性：同时保存 duration 和 estimatedTime（都是小时）
+        const durationHours = todo.duration || todo.estimatedTime || 0;
         const newTodo = {
             id: todo.id,
             name: todo.name,
             deadline: todo.deadline,
-            estimatedTime: todo.estimatedTime || 0,
+            duration: durationHours,           // main.js使用（小时）
+            estimatedTime: durationHours,      // 向后兼容
             importance: todo.importance || 3,
             urgency: todo.urgency || 3,
             completed: false,
@@ -420,7 +428,9 @@ class TaskManager {
             return null;
         }
         
-        const timeRatio = actualTime / (todo.duration * 60 * 60);
+        // 兼容 duration 和 estimatedTime 字段（都是小时）
+        const durationHours = todo.duration || todo.estimatedTime || 1;
+        const timeRatio = actualTime / (durationHours * 60 * 60);
         
         // 更新待办状态
         const updates = {
@@ -446,20 +456,20 @@ class TaskManager {
             baseFlameReward = baseReward;
         }
         
-        // 计算精力消耗
+        // 计算精力消耗（使用兼容后的duration）
         let spiritCost = 0;
-        if (todo.duration <= 0.5) {
+        if (durationHours <= 0.5) {
             spiritCost = 10;
-        } else if (todo.duration <= 1) {
+        } else if (durationHours <= 1) {
             spiritCost = 20;
-        } else if (todo.duration <= 2) {
+        } else if (durationHours <= 2) {
             spiritCost = 40;
         } else {
             spiritCost = 100;
         }
         
         // 计算体力消耗
-        const energyCost = Math.round((todo.duration / 8) * 100);
+        const energyCost = Math.round((durationHours / 8) * 100);
         
         console.log('[TaskManager] Todo completed:', todo.name, 
                     'baseFlameReward:', baseFlameReward,
