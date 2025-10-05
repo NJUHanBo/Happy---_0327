@@ -142,7 +142,15 @@ if (window.blackDogDisplayLoaded) {
             }).join('');
 
         // 创建已完成事项的侧边栏
-        const completedTodos = state.todos.filter(todo => todo.completed);
+        const completedTodos = state.todos
+            .filter(todo => todo.completed)
+            .sort((a, b) => {
+                // 按完成时间倒序排列（最新的在上面）
+                const dateA = new Date(a.completedAt || 0);
+                const dateB = new Date(b.completedAt || 0);
+                return dateB - dateA;
+            });
+        
         const todoListHtml = `
             <div class="dialog-sidebar">
                 <div class="task-list-header">已完成事项</div>
@@ -151,14 +159,14 @@ if (window.blackDogDisplayLoaded) {
                       completedTodos.map(todo => `
                         <li class="task-list-item">
                             <div>${todo.name}</div>
-                            <small>完成于: ${new Date(todo.completionDate).toLocaleDateString()}</small>
+                            <small>完成于: ${todo.completedAt ? new Date(todo.completedAt).toLocaleDateString() : '未知日期'}</small>
                             <button class="small-btn" onclick="deleteTodo(${todo.id})">删除</button>
                         </li>
                       `).join('') : 
                       '<li class="task-list-item empty">暂无已完成事项</li>'}
                 </ul>
             </div>
-        `;
+`;
 
         // 显示对话框，使用自定义HTML结构
         const dialogContainer = document.getElementById('dialog-container');
@@ -245,7 +253,15 @@ if (window.blackDogDisplayLoaded) {
                 }).join('');
 
             // 创建已完成项目的侧边栏
-            const completedProjects = state.projects.filter(project => project.completedAt);
+            const completedProjects = state.projects
+                .filter(project => project.completedAt)
+                .sort((a, b) => {
+                    // 按完成时间倒序排列（最新的在上面）
+                    const dateA = new Date(a.completedAt || 0);
+                    const dateB = new Date(b.completedAt || 0);
+                    return dateB - dateA;
+                });
+            
             const projectListHtml = `
                 <div class="dialog-sidebar">
                     <div class="task-list-header">已完成项目</div>
@@ -254,7 +270,7 @@ if (window.blackDogDisplayLoaded) {
                           completedProjects.map(project => `
                             <li class="task-list-item">
                                 <div>${project.name}</div>
-                                <small>完成于: ${new Date(project.completedAt).toLocaleDateString()}</small>
+                                <small>完成于: ${project.completedAt ? new Date(project.completedAt).toLocaleDateString() : '未知日期'}</small>
                                 <div class="item-actions">
                                     <button class="small-btn" onclick="showProjectDetails(${project.id})">详情</button>
                                     <button class="small-btn" onclick="deleteProject(${project.id})">删除</button>
