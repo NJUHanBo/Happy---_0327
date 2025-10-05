@@ -2,39 +2,39 @@
 
 **目标：** 将main.js中41个任务函数迁移到使用TaskManager API
 
-**当前进度：** 5/41 (12%)
+**当前进度：** 8/41 (20%)
 
 ---
 
-## ✅ 已迁移 (5个)
+## ✅ 已迁移 (8个)
 
-### 日常任务 (2/~14)
-- [x] `confirmDeleteDailyTask()` - 删除任务
-- [x] `addDailyTask()` - 添加任务  
-- [ ] `editDailyTask()`
-- [ ] `saveEditedDailyTask()`
-- [ ] `startDailyTask()`
-- [ ] `completeDailyTask()`
-- [ ] `finishDailyTask()`
+### 日常任务 (4/~14)
+- [x] `confirmDeleteDailyTask()` → TaskManager.deleteDailyTask()
+- [x] `addDailyTask()` → TaskManager.addDailyTask()
+- [ ] `editDailyTask()` (UI only, no migration needed)
+- [x] `saveEditedDailyTask()` → TaskManager.updateDailyTask()
+- [ ] `startDailyTask()` (timer logic, deferred)
+- [ ] `completeDailyTask()` (UI only, no migration needed)
+- [x] `finishDailyTask()` → TaskManager.completeDailyTask() ✨ (includes business logic)
 - [ ] 其他...
 
 ### 项目 (2/~14)
-- [x] `confirmDeleteProject()` - 删除项目
-- [x] `addProject()` - 添加项目
-- [ ] `editProject()`
-- [ ] `saveEditedProject()`
-- [ ] `startProject()`
+- [x] `confirmDeleteProject()` → TaskManager.deleteProject()
+- [x] `addProject()` → TaskManager.addProject()
+- [ ] `editProject()` (complex, deferred)
+- [ ] `saveEditedProject()` (complex, deferred)
+- [ ] `startProject()` (timer logic, deferred)
 - [ ] `completeProjectSession()`
 - [ ] `finishProjectProgress()`
 - [ ] 其他...
 
-### 待办事项 (1/~13)
-- [x] `addTodo()` - 添加待办
-- [ ] `deleteTodo()`
+### 待办事项 (2/~13)
+- [x] `addTodo()` → TaskManager.addTodo()
+- [ ] `deleteTodo()` (not found, possibly inline?)
 - [ ] `editTodo()`
-- [ ] `startTodo()`
-- [ ] `completeTodo()`
-- [ ] `finishTodo()`
+- [ ] `startTodo()` (timer logic, deferred)
+- [ ] `completeTodo()` (UI only, no migration needed)
+- [x] `finishTodo()` → TaskManager.completeTodo() ✨ (includes business logic)
 - [ ] 其他...
 
 ---
@@ -42,24 +42,28 @@
 ## 📊 统计
 
 ```
-已迁移：5个函数 (12%)
-待迁移：36个函数 (88%)
+已迁移：8个函数 (20%)
+待迁移：33个函数 (80%)
 估算减少行数：每10个函数 ~80-120行
 总预期减少：~300-430行（当全部迁移完成）
+当前已减少：~90-110行
 ```
 
 ---
 
 ## 🎯 下一批迁移计划
 
-### 第2批：完成CRUD（推荐）
-迁移剩余的删除和编辑函数：
-- `deleteTodo()`
-- `editDailyTask()` + `saveEditedDailyTask()`
-- `editProject()` + `saveEditedProject()`
-- `editTodo()` + `saveEditedTodo()`
+### 第3批：项目操作（当前推荐）
+迁移项目相关的执行和查询函数：
+- `completeProjectMilestone()`
+- `startProject()` / `completeProjectSession()`
+- `showProjectDetails()` related functions
 
-**预计：** 6-8个函数，减少60-80行
+**预计：** 4-6个函数，减少50-70行
+
+### 已跳过（复杂，需单独处理）
+- ⏸️ `editProject()` + `saveEditedProject()` - 里程碑逻辑复杂，需单独重构
+- ⏸️ Timer相关函数 - 涉及全局timerState，需单独重构
 
 ### 第3批：任务执行流程
 迁移开始、暂停、恢复、完成相关函数：
@@ -122,8 +126,8 @@ function someFunction() {
 
 ### 当前阶段
 ```
-Phase 1: CRUD操作        █████░░░░░░░░░░░░░░░░  12%
-Phase 2: 执行流程        ░░░░░░░░░░░░░░░░░░░░   0%
+Phase 1: CRUD操作        ████████░░░░░░░░░░░░  20%  ← 当前
+Phase 2: 执行流程        ████░░░░░░░░░░░░░░░░   5%
 Phase 3: 显示逻辑        ░░░░░░░░░░░░░░░░░░░░   0%
 Phase 4: 清理旧代码      ░░░░░░░░░░░░░░░░░░░░   0%
 ```
@@ -188,6 +192,6 @@ main.js减少：      ~100-150行
 - 记录发现的问题
 - 调整后续计划
 
-**上次更新：** 2025-10-04  
-**下次计划：** 迁移第2批（CRUD完成）
+**上次更新：** 2025-10-05  
+**下次计划：** 继续迁移项目相关函数 / 或继续简单CRUD
 
