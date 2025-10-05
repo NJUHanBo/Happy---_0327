@@ -1679,62 +1679,51 @@ function completeDailyTask(taskId) {
     `);
 }
 
+// [Refactored] Now uses TaskManager for core logic
 function finishDailyTask(taskId) {
-    const task = state.dailyTasks.find(t => t.id === taskId);
-    if (!task) return;
-
     if (!window.currentRating) {
         alert('请给任务完成度打分！');
         return;
     }
 
     const actualTime = Math.round((Date.now() - timerState.startTime) / 1000);
-    const timeRatio = actualTime / (task.duration * 60);
+    const rating = window.currentRating;
     
-    // 更新任务状态
-    task.completedTimes++;
-    const today = new Date().toISOString().split('T')[0];
+    // Use TaskManager for core business logic
+    const tm = getTaskManager();
+    let result;
     
-    if (task.lastCompleted === today) {
-        // 今天已经完成过了，不更新连续天数
-    } else if (task.lastCompleted) {
-        const lastDate = new Date(task.lastCompleted);
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        if (lastDate.toISOString().split('T')[0] === yesterday.toISOString().split('T')[0]) {
-            task.streakDays++;
-        } else {
-            task.streakDays = 1;
-        }
+    if (tm) {
+        result = tm.completeDailyTask(taskId, actualTime, rating);
+        if (!result) return;
     } else {
-        task.streakDays = 1;
+        // Fallback to original logic
+        const task = state.dailyTasks.find(t => t.id === taskId);
+        if (!task) return;
+        
+        const timeRatio = actualTime / (task.duration * 60);
+        task.completedTimes++;
+        task.lastCompleted = new Date().toISOString().split('T')[0];
+        task.streakDays = (task.streakDays || 0) + 1;
+        
+        const baseReward = 10;
+        const sawdustReward = Math.round(baseReward * (rating / 5) * (timeRatio < 1 ? (1 + (1 - timeRatio)) : 1));
+        
+        result = { task, sawdustReward, streakDays: task.streakDays };
     }
     
-    task.lastCompleted = today;
-
-    // 计算木屑奖励
-    const baseReward = 10;
-    let sawdustReward = Math.round(baseReward * (window.currentRating / 5));
+    const { task, sawdustReward } = result;
     
-    // 额外奖励：如果实际用时少于计划时间，增加奖励
-    if (timeRatio < 1) {
-        sawdustReward = Math.round(sawdustReward * (1 + (1 - timeRatio)));
-    }
-
-    // 更新状态
+    // 更新状态（奖励和资源）
     state.stats.sawdust += sawdustReward;
     
-    // 计算火苗奖励（使用新的计算函数）
     const baseFlameReward = Math.round(sawdustReward / 2);
-    const flameReward = calculateFlameReward(baseFlameReward)/2;
+    const flameReward = calculateFlameReward(baseFlameReward) / 2;
     state.stats.flame += flameReward;
     
-    // 更新精力值
     const spiritCost = task.interest === 'high' ? -20 : (task.interest === 'low' ? 40 : 20);
     state.stats.spirit = Math.max(0, Math.min(100, state.stats.spirit - spiritCost));
-
-    // 更新体力值
+    
     const energyCost = Math.round((task.duration / 480) * 100);
     state.stats.energy = Math.max(0, state.stats.energy - energyCost);
 
@@ -4700,10 +4689,8 @@ function editDailyTask(taskId) {
 }
 
 // 保存编辑后的日常任务
+// [Refactored] Now uses TaskManager
 function saveEditedDailyTask(taskId) {
-    const task = state.dailyTasks.find(t => t.id === taskId);
-    if (!task) return;
-
     const name = document.getElementById('edit-task-name').value.trim();
     const duration = parseInt(document.getElementById('edit-task-duration').value);
     const importance = document.getElementById('edit-task-importance').value;
@@ -4719,11 +4706,25 @@ function saveEditedDailyTask(taskId) {
         return;
     }
 
-    // 更新任务信息
-    task.name = name;
-    task.duration = duration;
-    task.importance = importance;
-    task.interest = interest;
+    // Use TaskManager
+    const tm = getTaskManager();
+    if (tm) {
+        tm.updateDailyTask(taskId, {
+            name,
+            dailyTime: duration,
+            importance: parseInt(importance),
+            interest: parseInt(interest)
+        });
+    } else {
+        // Fallback
+        const task = state.dailyTasks.find(t => t.id === taskId);
+        if (task) {
+            task.name = name;
+            task.duration = duration;
+            task.importance = importance;
+            task.interest = interest;
+        }
+    }
 
     saveState();
     showDailyRoutine();

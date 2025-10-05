@@ -114,9 +114,9 @@ class TaskManager {
     }
     
     /**
-     * 完成日常任务
+     * 完成日常任务（包含业务逻辑：streak计算、奖励计算）
      */
-    completeDailyTask(taskId, actualTime, quality) {
+    completeDailyTask(taskId, actualTime, rating) {
         const tasks = this.getDailyTasks();
         const task = tasks.find(t => t.id === taskId);
         
@@ -125,19 +125,51 @@ class TaskManager {
             return null;
         }
         
-        // 更新任务状态
-        const updates = {
-            completed: true,
-            actualTime: actualTime,
-            quality: quality,
-            completedAt: new Date().toISOString(),
-            streak: (task.streak || 0) + 1
+        const timeRatio = actualTime / (task.duration * 60);
+        const today = new Date().toISOString().split('T')[0];
+        
+        // 更新任务状态和streak
+        task.completedTimes = (task.completedTimes || 0) + 1;
+        
+        if (task.lastCompleted === today) {
+            // 今天已经完成过了，不更新连续天数
+        } else if (task.lastCompleted) {
+            const lastDate = new Date(task.lastCompleted);
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            if (lastDate.toISOString().split('T')[0] === yesterday.toISOString().split('T')[0]) {
+                task.streakDays = (task.streakDays || 0) + 1;
+            } else {
+                task.streakDays = 1;
+            }
+        } else {
+            task.streakDays = 1;
+        }
+        
+        task.lastCompleted = today;
+        
+        // 计算木屑奖励
+        const baseReward = 10;
+        let sawdustReward = Math.round(baseReward * (rating / 5));
+        
+        // 额外奖励：如果实际用时少于计划时间，增加奖励
+        if (timeRatio < 1) {
+            sawdustReward = Math.round(sawdustReward * (1 + (1 - timeRatio)));
+        }
+        
+        // 同步更新
+        this.updateDailyTask(taskId, task);
+        
+        console.log('[TaskManager] Daily task completed:', task.name, 
+                    'streak:', task.streakDays, 'reward:', sawdustReward);
+        
+        return {
+            task,
+            sawdustReward,
+            streakDays: task.streakDays,
+            timeRatio
         };
-        
-        this.updateDailyTask(taskId, updates);
-        
-        console.log('[TaskManager] Daily task completed:', task.name);
-        return { ...task, ...updates };
     }
     
     // ========================================
