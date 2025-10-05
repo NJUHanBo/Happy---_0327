@@ -248,6 +248,79 @@
                 }
             });
             
+            test('TaskManager可以更新任务', () => {
+                try {
+                    const sm = new StateManager();
+                    const tm = new TaskManager(sm);
+                    
+                    const task = tm.addDailyTask({ name: 'Old Name', dailyTime: 1 });
+                    tm.updateDailyTask(task.id, { name: 'New Name' });
+                    const tasks = tm.getDailyTasks();
+                    
+                    return tasks[0].name === 'New Name';
+                } catch (e) {
+                    return e.message;
+                }
+            });
+            
+            test('TaskManager可以删除任务', () => {
+                try {
+                    const sm = new StateManager();
+                    const tm = new TaskManager(sm);
+                    
+                    const task = tm.addDailyTask({ name: 'To Delete', dailyTime: 1 });
+                    tm.deleteDailyTask(task.id);
+                    const tasks = tm.getDailyTasks();
+                    
+                    return tasks.length === 0;
+                } catch (e) {
+                    return e.message;
+                }
+            });
+            
+            test('TaskManager.completeDailyTask计算streak', () => {
+                try {
+                    const sm = new StateManager();
+                    const tm = new TaskManager(sm);
+                    
+                    const task = tm.addDailyTask({ name: 'Streak Test', dailyTime: 60, duration: 60 });
+                    const result = tm.completeDailyTask(task.id, 3000, 5); // 3000秒，5星
+                    
+                    return result && result.streakDays === 1 && result.sawdustReward > 0;
+                } catch (e) {
+                    return e.message;
+                }
+            });
+            
+            test('TaskManager可以添加和完成待办', () => {
+                try {
+                    const sm = new StateManager();
+                    const tm = new TaskManager(sm);
+                    
+                    const todo = tm.addTodo({ name: 'Test Todo', duration: 1 });
+                    const result = tm.completeTodo(todo.id, 3000, 4); // 3000秒，4星
+                    
+                    return result && result.baseFlameReward > 0 && result.energyCost > 0;
+                } catch (e) {
+                    return e.message;
+                }
+            });
+            
+            test('TaskManager.completeTodo计算精力消耗', () => {
+                try {
+                    const sm = new StateManager();
+                    const tm = new TaskManager(sm);
+                    
+                    // 短任务（0.5小时）应该消耗10精力
+                    const todo = tm.addTodo({ name: 'Short Todo', duration: 0.5 });
+                    const result = tm.completeTodo(todo.id, 1800, 5);
+                    
+                    return result.spiritCost === 10;
+                } catch (e) {
+                    return e.message;
+                }
+            });
+            
             // 测试5：localStorage相关
             test('可以读取localStorage', () => {
                 try {
