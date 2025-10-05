@@ -2076,58 +2076,48 @@ function completeTodo(todoId) {
     `);
 }
 
-// 完成待办事项并计算奖励
+// [Refactored] Now uses TaskManager for core logic
 function finishTodo(todoId) {
-    const todo = state.todos.find(t => t.id === todoId);
-    if (!todo) return;
-
     if (!window.currentRating || isNaN(window.currentRating)) {
         alert('请给任务完成度打分！');
         return;
     }
 
     const actualTime = Math.round((Date.now() - timerState.startTime) / 1000);
-    const timeRatio = actualTime / (todo.duration * 60 * 60);
-
-    // 更新待办状态
-    todo.completed = true;
-    todo.completedAt = new Date().toISOString();
-    todo.satisfaction = window.currentRating;
-
-    // 计算基础火苗奖励
-    const baseReward = 10;
-    let baseFlameReward = Math.round(baseReward * (window.currentRating / 5));
+    const rating = window.currentRating;
     
-    // 额外奖励：如果实际用时少于计划时间，增加奖励
-    if (timeRatio < 1) {
-        baseFlameReward = Math.round(baseFlameReward * (1 + (1 - timeRatio)));
+    // Use TaskManager for core business logic
+    const tm = getTaskManager();
+    let result;
+    
+    if (tm) {
+        result = tm.completeTodo(todoId, actualTime, rating);
+        if (!result) return;
+    } else {
+        // Fallback
+        const todo = state.todos.find(t => t.id === todoId);
+        if (!todo) return;
+        
+        todo.completed = true;
+        todo.completedAt = new Date().toISOString();
+        todo.satisfaction = rating;
+        
+        const timeRatio = actualTime / (todo.duration * 60 * 60);
+        const baseReward = 10;
+        const baseFlameReward = Math.round(baseReward * (rating / 5) * (timeRatio < 1 ? (1 + (1 - timeRatio)) : 1));
+        const spiritCost = todo.duration <= 0.5 ? 10 : (todo.duration <= 1 ? 20 : (todo.duration <= 2 ? 40 : 100));
+        const energyCost = Math.round((todo.duration / 8) * 100);
+        
+        result = { todo, baseFlameReward, energyCost, spiritCost };
     }
-
-    // 确保baseFlameReward是有效数字
-    if (isNaN(baseFlameReward) || !isFinite(baseFlameReward)) {
-        baseFlameReward = baseReward; // 使用默认值
-    }
-
+    
+    const { todo, baseFlameReward, energyCost, spiritCost } = result;
+    
     // 使用calculateFlameReward函数计算最终火苗奖励（考虑镜子效果等）
     const flameReward = calculateFlameReward(baseFlameReward);
-
+    
     // 更新状态
     state.stats.flame += flameReward;
-    
-    // 计算精力消耗
-    let spiritCost = 0;
-    if (todo.duration <= 0.5) {
-        spiritCost = 10;
-    } else if (todo.duration <= 1) {
-        spiritCost = 20;
-    } else if (todo.duration <= 2) {
-        spiritCost = 40;
-    } else {
-        spiritCost = 100;
-    }
-    
-    // 更新体力和精力值
-    const energyCost = Math.round((todo.duration / 8) * 100); // 8小时工作对应100点体力
     state.stats.energy = Math.max(0, state.stats.energy - energyCost);
     state.stats.spirit = Math.max(0, state.stats.spirit - spiritCost);
 

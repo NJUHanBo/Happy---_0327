@@ -410,9 +410,9 @@ class TaskManager {
     }
     
     /**
-     * 完成待办
+     * 完成待办（包含业务逻辑：奖励计算、精力消耗）
      */
-    completeTodo(todoId, actualTime, quality) {
+    completeTodo(todoId, actualTime, rating) {
         const todo = this.getTodos().find(t => t.id === todoId);
         
         if (!todo) {
@@ -420,17 +420,59 @@ class TaskManager {
             return null;
         }
         
+        const timeRatio = actualTime / (todo.duration * 60 * 60);
+        
+        // 更新待办状态
         const updates = {
             completed: true,
             actualTime: actualTime,
-            quality: quality,
+            satisfaction: rating,
             completedAt: new Date().toISOString()
         };
         
         this.updateTodo(todoId, updates);
         
-        console.log('[TaskManager] Todo completed:', todo.name);
-        return { ...todo, ...updates };
+        // 计算基础火苗奖励
+        const baseReward = 10;
+        let baseFlameReward = Math.round(baseReward * (rating / 5));
+        
+        // 额外奖励：如果实际用时少于计划时间，增加奖励
+        if (timeRatio < 1) {
+            baseFlameReward = Math.round(baseFlameReward * (1 + (1 - timeRatio)));
+        }
+        
+        // 确保baseFlameReward是有效数字
+        if (isNaN(baseFlameReward) || !isFinite(baseFlameReward)) {
+            baseFlameReward = baseReward;
+        }
+        
+        // 计算精力消耗
+        let spiritCost = 0;
+        if (todo.duration <= 0.5) {
+            spiritCost = 10;
+        } else if (todo.duration <= 1) {
+            spiritCost = 20;
+        } else if (todo.duration <= 2) {
+            spiritCost = 40;
+        } else {
+            spiritCost = 100;
+        }
+        
+        // 计算体力消耗
+        const energyCost = Math.round((todo.duration / 8) * 100);
+        
+        console.log('[TaskManager] Todo completed:', todo.name, 
+                    'baseFlameReward:', baseFlameReward,
+                    'energyCost:', energyCost,
+                    'spiritCost:', spiritCost);
+        
+        return {
+            todo: { ...todo, ...updates },
+            baseFlameReward,
+            energyCost,
+            spiritCost,
+            timeRatio
+        };
     }
     
     // ========================================
