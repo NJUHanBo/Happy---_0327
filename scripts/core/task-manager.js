@@ -45,16 +45,16 @@ class TaskManager {
         // 兼容性：同时保存 duration 和 dailyTime（都是分钟）
         const durationMinutes = task.dailyTime || task.duration || 0;
         const newTask = {
+            ...task,                        // 先展开task的所有字段
             id: task.id,
             name: task.name,
             duration: durationMinutes,      // main.js使用
             dailyTime: durationMinutes,     // 向后兼容
-            importance: task.importance || 3,
-            interest: task.interest || 3,
+            importance: parseInt(task.importance) || 3,
+            interest: parseInt(task.interest) || 3,
             streak: 0,
             completed: false,
-            createdAt: new Date().toISOString(),
-            ...task
+            createdAt: new Date().toISOString()
         };
         
         tasks.push(newTask);
@@ -203,17 +203,17 @@ class TaskManager {
         }
         
         const newProject = {
+            ...project,                     // 先展开project的所有字段
             id: project.id,
             name: project.name,
             deadline: project.deadline,
             dailyTime: project.dailyTime || 0,
-            importance: project.importance || 3,
-            interest: project.interest || 3,
+            importance: parseInt(project.importance) || 3,
+            interest: parseInt(project.interest) || 3,
             milestones: project.milestones || [],
             currentMilestone: 0,
             completed: false,
-            createdAt: new Date().toISOString(),
-            ...project
+            createdAt: new Date().toISOString()
         };
         
         projects.push(newProject);
@@ -346,16 +346,16 @@ class TaskManager {
         // 兼容性：同时保存 duration 和 estimatedTime（都是小时）
         const durationHours = todo.duration || todo.estimatedTime || 0;
         const newTodo = {
+            ...todo,                           // 先展开todo的所有字段
             id: todo.id,
             name: todo.name,
             deadline: todo.deadline,
             duration: durationHours,           // main.js使用（小时）
             estimatedTime: durationHours,      // 向后兼容
-            importance: todo.importance || 3,
-            urgency: todo.urgency || 3,
+            importance: parseInt(todo.importance) || 3,
+            urgency: parseInt(todo.urgency) || 3,
             completed: false,
-            createdAt: new Date().toISOString(),
-            ...todo
+            createdAt: new Date().toISOString()
         };
         
         todos.push(newTodo);
