@@ -2,11 +2,11 @@
 
 **目标：** 将main.js中41个任务函数迁移到使用TaskManager API
 
-**当前进度：** 8/41 (20%)
+**当前进度：** 12/41 (29%)
 
 ---
 
-## ✅ 已迁移 (8个)
+## ✅ 已迁移 (12个)
 
 ### 日常任务 (4/~14)
 - [x] `confirmDeleteDailyTask()` → TaskManager.deleteDailyTask()
@@ -28,10 +28,12 @@
 - [ ] `finishProjectProgress()`
 - [ ] 其他...
 
-### 待办事项 (2/~13)
+### 待办事项 (6/~13) ✨ NEW
 - [x] `addTodo()` → TaskManager.addTodo()
-- [ ] `deleteTodo()` (not found, possibly inline?)
-- [ ] `editTodo()`
+- [x] `deleteTodo()` → 新增UI函数 (显示确认对话框)
+- [x] `confirmDeleteTodo()` → TaskManager.deleteTodo() ✨ NEW
+- [x] `editTodo()` → 新增UI函数 (显示编辑对话框) ✨ NEW
+- [x] `saveEditedTodo()` → TaskManager.updateTodo() ✨ NEW
 - [ ] `startTodo()` (timer logic, deferred)
 - [ ] `completeTodo()` (UI only, no migration needed)
 - [x] `finishTodo()` → TaskManager.completeTodo() ✨ (includes business logic)
@@ -42,11 +44,12 @@
 ## 📊 统计
 
 ```
-已迁移：8个函数 (20%)
-待迁移：33个函数 (80%)
+已迁移：12个函数 (29%)
+待迁移：29个函数 (71%)
 估算减少行数：每10个函数 ~80-120行
 总预期减少：~300-430行（当全部迁移完成）
-当前已减少：~90-110行
+当前已减少：~120-150行
+新增功能：待办事项编辑/删除 (4个函数，~120行)
 ```
 
 ---

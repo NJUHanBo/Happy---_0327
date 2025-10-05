@@ -1918,7 +1918,11 @@ function showTodoMaster() {
                 <p>预计时长：${todo.duration}小时</p>
                 <p>重要性：${getImportanceText(todo.importance)}</p>
                 <p>紧急度：${getUrgencyText(todo.urgency)}</p>
-                <button onclick="startTodo(${todo.id})">开始处理</button>
+                <div class="task-actions">
+                    <button onclick="startTodo(${todo.id})">开始处理</button>
+                    <button onclick="editTodo(${todo.id})" class="secondary">编辑</button>
+                    <button onclick="deleteTodo(${todo.id})" class="danger">删除</button>
+                </div>
             </div>
         `).join('');
 
@@ -1942,6 +1946,126 @@ function getUrgencyText(urgency) {
         low: '不紧急'
     };
     return texts[urgency] || urgency;
+}
+
+// 删除待办事项
+function deleteTodo(todoId) {
+    showDialog(`
+        <h2>确认删除</h2>
+        <p>确定要删除这个待办事项吗？此操作不可撤销。</p>
+        <div class="dialog-buttons">
+            <button onclick="confirmDeleteTodo(${todoId})" class="danger">确定删除</button>
+            <button onclick="showTodoMaster()">取消</button>
+        </div>
+    `);
+}
+
+// 确认删除待办事项
+// [Refactored] Now uses TaskManager
+function confirmDeleteTodo(todoId) {
+    const tm = getTaskManager();
+    if (tm) {
+        tm.deleteTodo(todoId);
+    } else {
+        // Fallback to old method if TaskManager not available
+        state.todos = state.todos.filter(todo => todo.id !== todoId);
+    }
+    saveState();
+    showTodoMaster();
+}
+
+// 编辑待办事项
+function editTodo(todoId) {
+    const todo = state.todos.find(t => t.id === todoId);
+    if (!todo) return;
+
+    showDialog(`
+        <h2>编辑待办事项</h2>
+        <div class="form-group">
+            <label for="edit-todo-name">事项名称：</label>
+            <input type="text" id="edit-todo-name" value="${todo.name}">
+        </div>
+        <div class="form-group">
+            <label for="edit-todo-deadline">截止日期：</label>
+            <input type="date" id="edit-todo-deadline" value="${todo.deadline ? new Date(todo.deadline).toISOString().split('T')[0] : ''}">
+        </div>
+        <div class="form-group">
+            <label for="edit-todo-duration">预计时长（小时）：</label>
+            <input type="number" id="edit-todo-duration" min="0.5" step="0.5" value="${todo.duration || todo.estimatedTime || 1}">
+        </div>
+        <div class="form-group">
+            <label for="edit-todo-importance">重要性：</label>
+            <select id="edit-todo-importance">
+                <option value="high" ${todo.importance === 'high' ? 'selected' : ''}>非常重要</option>
+                <option value="medium" ${todo.importance === 'medium' ? 'selected' : ''}>一般重要</option>
+                <option value="low" ${todo.importance === 'low' ? 'selected' : ''}>不重要</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="edit-todo-urgency">紧急程度：</label>
+            <select id="edit-todo-urgency">
+                <option value="high" ${todo.urgency === 'high' ? 'selected' : ''}>很紧急</option>
+                <option value="medium" ${todo.urgency === 'medium' ? 'selected' : ''}>一般紧急</option>
+                <option value="low" ${todo.urgency === 'low' ? 'selected' : ''}>不紧急</option>
+            </select>
+        </div>
+        <div class="dialog-buttons">
+            <button onclick="saveEditedTodo(${todoId})">保存修改</button>
+            <button onclick="showTodoMaster()">取消</button>
+        </div>
+    `);
+}
+
+// 保存编辑后的待办事项
+// [Refactored] Now uses TaskManager
+function saveEditedTodo(todoId) {
+    const name = document.getElementById('edit-todo-name').value.trim();
+    const deadline = document.getElementById('edit-todo-deadline').value;
+    const duration = parseFloat(document.getElementById('edit-todo-duration').value);
+    const importance = document.getElementById('edit-todo-importance').value;
+    const urgency = document.getElementById('edit-todo-urgency').value;
+
+    if (!name) {
+        alert('请输入事项名称');
+        return;
+    }
+
+    if (!deadline) {
+        alert('请选择截止日期');
+        return;
+    }
+
+    if (isNaN(duration) || duration < 0.5) {
+        alert('请输入有效的时长（至少0.5小时）');
+        return;
+    }
+
+    // Use TaskManager
+    const tm = getTaskManager();
+    if (tm) {
+        tm.updateTodo(todoId, {
+            name,
+            deadline,
+            duration: duration,           // main.js uses 'duration' (hours)
+            estimatedTime: duration,      // TaskManager compatibility
+            importance: importance,       // Keep as string
+            urgency: urgency             // Keep as string
+        });
+    } else {
+        // Fallback
+        const todo = state.todos.find(t => t.id === todoId);
+        if (todo) {
+            todo.name = name;
+            todo.deadline = deadline;
+            todo.duration = duration;
+            todo.estimatedTime = duration;
+            todo.importance = importance;
+            todo.urgency = urgency;
+        }
+    }
+
+    saveState();
+    showTodoMaster();
 }
 
 // 开始处理待办事项
