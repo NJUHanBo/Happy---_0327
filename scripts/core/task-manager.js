@@ -31,6 +31,14 @@ class TaskManager {
     }
     
     /**
+     * 根据ID获取日常任务
+     */
+    getDailyTaskById(taskId) {
+        const tasks = this.getDailyTasks();
+        return tasks.find(t => t.id === taskId);
+    }
+    
+    /**
      * 添加日常任务
      */
     addDailyTask(task) {
@@ -190,6 +198,14 @@ class TaskManager {
             return window.state.projects || [];
         }
         return this.state.get('projects') || [];
+    }
+    
+    /**
+     * 根据ID获取项目
+     */
+    getProjectById(projectId) {
+        const projects = this.getProjects();
+        return projects.find(p => p.id === projectId);
     }
     
     /**
@@ -367,6 +383,14 @@ class TaskManager {
             return window.state.todos || [];
         }
         return this.state.get('todos') || [];
+    }
+    
+    /**
+     * 根据ID获取待办事项
+     */
+    getTodoById(todoId) {
+        const todos = this.getTodos();
+        return todos.find(t => t.id === todoId);
     }
     
     /**
