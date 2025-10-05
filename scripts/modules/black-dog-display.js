@@ -141,7 +141,11 @@ if (window.blackDogDisplayLoaded) {
                         <p>预计时长：${todo.duration}小时</p>
                         <p>重要性：${getImportanceText(todo.importance)}</p>
                         <p>紧急度：${getUrgencyText(todo.urgency)}</p>
-                        <button onclick="startTodo(${todo.id})">开始处理</button>
+                        <div class="task-actions">
+                            <button onclick="startTodo(${todo.id})">开始处理</button>
+                            <button onclick="editTodo(${todo.id})" class="secondary">编辑</button>
+                            <button onclick="deleteTodo(${todo.id})" class="danger">删除</button>
+                        </div>
                     </div>
                 `;
             }).join('');
