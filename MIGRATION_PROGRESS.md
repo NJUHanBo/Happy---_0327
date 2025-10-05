@@ -2,42 +2,42 @@
 
 **目标：** 将main.js中41个任务函数迁移到使用TaskManager API
 
-**当前进度：** 13/41 (32%)
+**当前进度：** 16/41 (39%)
 
 ---
 
-## ✅ 已迁移 (13个)
+## ✅ 已迁移 (16个)
 
-### 日常任务 (5/~14)
+### 日常任务 (6/~14)
 - [x] `confirmDeleteDailyTask()` → TaskManager.deleteDailyTask()
 - [x] `addDailyTask()` → TaskManager.addDailyTask()
 - [ ] `editDailyTask()` (UI only, no migration needed)
 - [x] `saveEditedDailyTask()` → TaskManager.updateDailyTask()
-- [x] `showDailyRoutine()` → TaskManager.getSortedDailyTasks() ✨ NEW
-- [ ] `startDailyTask()` (timer logic, deferred)
+- [x] `showDailyRoutine()` → TaskManager.getSortedDailyTasks()
+- [x] `startDailyTask()` → TaskManager.getDailyTaskById() ✨ NEW
 - [ ] `completeDailyTask()` (UI only, no migration needed)
-- [x] `finishDailyTask()` → TaskManager.completeDailyTask() ✨ (includes business logic)
+- [x] `finishDailyTask()` → TaskManager.completeDailyTask() (includes business logic)
 - [ ] 其他...
 
-### 项目 (2/~14)
+### 项目 (3/~14)
 - [x] `confirmDeleteProject()` → TaskManager.deleteProject()
 - [x] `addProject()` → TaskManager.addProject()
 - [ ] `editProject()` (complex, deferred)
 - [ ] `saveEditedProject()` (complex, deferred)
-- [ ] `startProject()` (timer logic, deferred)
+- [x] `startProject()` → TaskManager.getProjectById() ✨ NEW
 - [ ] `completeProjectSession()`
 - [ ] `finishProjectProgress()`
 - [ ] 其他...
 
-### 待办事项 (6/~13) ✨ NEW
+### 待办事项 (7/~13)
 - [x] `addTodo()` → TaskManager.addTodo()
 - [x] `deleteTodo()` → 新增UI函数 (显示确认对话框)
-- [x] `confirmDeleteTodo()` → TaskManager.deleteTodo() ✨ NEW
-- [x] `editTodo()` → 新增UI函数 (显示编辑对话框) ✨ NEW
-- [x] `saveEditedTodo()` → TaskManager.updateTodo() ✨ NEW
-- [ ] `startTodo()` (timer logic, deferred)
+- [x] `confirmDeleteTodo()` → TaskManager.deleteTodo()
+- [x] `editTodo()` → 新增UI函数 (显示编辑对话框)
+- [x] `saveEditedTodo()` → TaskManager.updateTodo()
+- [x] `startTodo()` → TaskManager.getTodoById() ✨ NEW
 - [ ] `completeTodo()` (UI only, no migration needed)
-- [x] `finishTodo()` → TaskManager.completeTodo() ✨ (includes business logic)
+- [x] `finishTodo()` → TaskManager.completeTodo() (includes business logic)
 - [ ] 其他...
 
 ---
@@ -45,13 +45,17 @@
 ## 📊 统计
 
 ```
-已迁移：13个函数 (32%)
-待迁移：28个函数 (68%)
+已迁移：16个函数 (39%)
+待迁移：25个函数 (61%)
 估算减少行数：每10个函数 ~80-120行
 总预期减少：~300-430行（当全部迁移完成）
-当前已减少：~140-170行
+当前已减少：~160-190行
 新增功能：待办事项编辑/删除 (4个函数，~120行)
-新增查询方法：getSortedDailyTasks() (TaskManager)
+新增查询方法：
+  - getSortedDailyTasks()
+  - getDailyTaskById()
+  - getProjectById()
+  - getTodoById()
 ```
 
 ---
