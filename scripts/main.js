@@ -192,6 +192,10 @@ const state = {
     }
 };
 
+// CRITICAL: Expose state to window for TaskManager and other modules
+window.state = state;
+console.log('[Refactoring] Global state exposed to window');
+
 // 新增：临时存储上传的背景图片
 let tempBackgrounds = {};
 
@@ -260,6 +264,9 @@ function initializeApp() {
             // 合并加载的状态
             Object.assign(state, loadedState);
             
+            // CRITICAL: Update window.state reference after loading
+            window.state = state;
+            
             // 确保必需字段
             if (typeof state.dailyThoughtCompleted === 'undefined') {
                 state.dailyThoughtCompleted = false;
@@ -314,6 +321,9 @@ function initializeApp() {
             
             // 合并保存的状态
             Object.assign(state, parsedState);
+            
+            // CRITICAL: Update window.state in fallback path too
+            window.state = state;
             
             if (typeof state.dailyThoughtCompleted === 'undefined') {
                 state.dailyThoughtCompleted = false;
