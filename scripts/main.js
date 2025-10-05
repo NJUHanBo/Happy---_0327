@@ -1443,8 +1443,10 @@ function showDailyRoutine() {
 }
 
 // 开始日常任务
+// [Refactored] Now uses TaskManager.getDailyTaskById()
 function startDailyTask(taskId) {
-    const task = state.dailyTasks.find(t => t.id === taskId);
+    const tm = getTaskManager();
+    const task = tm ? tm.getDailyTaskById(taskId) : state.dailyTasks.find(t => t.id === taskId);
     if (!task) return;
 
     // 计算预计消耗的体力和精力
@@ -2060,8 +2062,10 @@ function saveEditedTodo(todoId) {
 }
 
 // 开始处理待办事项
+// [Refactored] Now uses TaskManager.getTodoById()
 function startTodo(todoId) {
-    const todo = state.todos.find(t => t.id === todoId);
+    const tm = getTaskManager();
+    const todo = tm ? tm.getTodoById(todoId) : state.todos.find(t => t.id === todoId);
     if (!todo) return;
 
     // 计算预计消耗的体力和精力
@@ -2626,8 +2630,10 @@ function showProjectManager() {
 }
 
 // 开始项目工作
+// [Refactored] Now uses TaskManager.getProjectById()
 function startProject(projectId) {
-    const project = state.projects.find(p => p.id === projectId);
+    const tm = getTaskManager();
+    const project = tm ? tm.getProjectById(projectId) : state.projects.find(p => p.id === projectId);
     if (!project) return;
 
     const milestone = project.milestones[project.currentMilestone];
