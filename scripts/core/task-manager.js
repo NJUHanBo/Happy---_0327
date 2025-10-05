@@ -50,8 +50,8 @@ class TaskManager {
             name: task.name,
             duration: durationMinutes,      // main.js使用
             dailyTime: durationMinutes,     // 向后兼容
-            importance: parseInt(task.importance) || 3,
-            interest: parseInt(task.interest) || 3,
+            importance: task.importance || 'medium',    // 保持字符串（'high'/'medium'/'low'）
+            interest: task.interest || 'medium',        // 保持字符串
             streak: 0,
             completed: false,
             createdAt: new Date().toISOString()
@@ -208,8 +208,8 @@ class TaskManager {
             name: project.name,
             deadline: project.deadline,
             dailyTime: project.dailyTime || 0,
-            importance: parseInt(project.importance) || 3,
-            interest: parseInt(project.interest) || 3,
+            importance: project.importance || 'medium',     // 保持字符串（'high'/'medium'/'low'）
+            interest: project.interest || 'medium',         // 保持字符串
             milestones: project.milestones || [],
             currentMilestone: 0,
             completed: false,
@@ -388,8 +388,8 @@ class TaskManager {
             deadline: todo.deadline,
             duration: durationHours,           // main.js使用（小时）
             estimatedTime: durationHours,      // 向后兼容
-            importance: parseInt(todo.importance) || 3,
-            urgency: parseInt(todo.urgency) || 3,
+            importance: todo.importance || 'medium',    // 保持字符串（'high'/'medium'/'low'）
+            urgency: todo.urgency || 'medium',          // 保持字符串
             completed: false,
             createdAt: new Date().toISOString()
         };

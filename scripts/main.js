@@ -1350,8 +1350,8 @@ function addDailyTask() {
     const task = {
         name,
         dailyTime: duration,  // TaskManager uses 'dailyTime'
-        importance: parseInt(importance),
-        interest: parseInt(interest),
+        importance: importance,  // 保持字符串（'high'/'medium'/'low'）
+        interest: interest,      // 保持字符串
         completedTimes: 0,
         streakDays: 0,
         lastCompleted: null
