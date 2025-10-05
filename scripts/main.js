@@ -1841,8 +1841,8 @@ function addTodo() {
         name,
         deadline,
         estimatedTime: duration,  // TaskManager uses 'estimatedTime'
-        importance: parseInt(importance),
-        urgency: parseInt(urgency),
+        importance: importance,    // Keep as string ('high'/'medium'/'low')
+        urgency: urgency,          // Keep as string ('high'/'medium'/'low')
         completed: false,
         completedAt: null,
         satisfaction: 0
@@ -1892,6 +1892,7 @@ function finishInitialSetup() {
 }
 
 // 显示待办事项列表
+// [Refactored] Now uses TaskManager.getActiveTodos()
 function showTodoMaster() {
     if (state.todos.length === 0) {
         showDialog(`
@@ -1905,26 +1906,11 @@ function showTodoMaster() {
         return;
     }
 
-    const todosHtml = state.todos
-        .filter(todo => !todo.completed)
-        .sort((a, b) => {
-            // 首先按重要性排序
-            const importanceOrder = { high: 3, medium: 2, low: 1 };
-            const importanceDiff = importanceOrder[b.importance] - importanceOrder[a.importance];
-            if (importanceDiff !== 0) return importanceDiff;
-
-            // 然后按紧急程度排序
-            const urgencyOrder = { high: 3, medium: 2, low: 1 };
-            const urgencyDiff = urgencyOrder[b.urgency] - urgencyOrder[a.urgency];
-            if (urgencyDiff !== 0) return urgencyDiff;
-
-            // 按截止日期排序
-            const deadlineDiff = new Date(a.deadline) - new Date(b.deadline);
-            if (deadlineDiff !== 0) return deadlineDiff;
-
-            // 最后按预计时长排序（短任务优先）
-            return a.duration - b.duration;
-        })
+    // Use TaskManager for sorting
+    const tm = getTaskManager();
+    const activeTodos = tm ? tm.getActiveTodos() : state.todos.filter(todo => !todo.completed);
+    
+    const todosHtml = activeTodos
         .map(todo => `
             <div class="todo-card" data-todo-id="${todo.id}">
                 <h3>${todo.name}</h3>
@@ -2434,6 +2420,7 @@ function startThoughtTimer() {
 }
 
 // 显示项目经理界面
+// [Refactored] Now uses TaskManager.getActiveProjects()
 function showProjectManager() {
     if (state.projects.length === 0) {
         showDialog(`
@@ -2447,22 +2434,11 @@ function showProjectManager() {
         return;
     }
 
-    const projectsHtml = state.projects
-        .filter(project => !project.completedAt)
-        .sort((a, b) => {
-            // 首先按截止日期排序
-            const deadlineDiff = new Date(a.deadline) - new Date(b.deadline);
-            if (deadlineDiff !== 0) return deadlineDiff;
-
-            // 然后按重要性排序
-            const importanceOrder = { high: 3, medium: 2, low: 1 };
-            const importanceDiff = importanceOrder[b.importance] - importanceOrder[a.importance];
-            if (importanceDiff !== 0) return importanceDiff;
-
-            // 最后按兴趣程度排序
-            const interestOrder = { high: 3, medium: 2, low: 1 };
-            return interestOrder[b.interest] - interestOrder[a.interest];
-        })
+    // Use TaskManager for sorting
+    const tm = getTaskManager();
+    const activeProjects = tm ? tm.getActiveProjects() : state.projects.filter(project => !project.completedAt);
+    
+    const projectsHtml = activeProjects
         .map(project => {
             const nextMilestone = project.milestones[project.currentMilestone];
             const completedMilestones = project.currentMilestone;

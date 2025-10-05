@@ -586,6 +586,94 @@ class TaskManager {
         this.state.set('dailyTasks', tasks);
         console.log('[TaskManager] Daily tasks reset');
     }
+    
+    // ========================================
+    // 查询和排序方法
+    // ========================================
+    
+    /**
+     * 获取未完成的待办事项（已排序）
+     * 排序规则：重要性 > 紧急度 > 截止日期 > 预计时长
+     */
+    getActiveTodos() {
+        const todos = this.getTodos();
+        return todos
+            .filter(todo => !todo.completed)
+            .sort((a, b) => {
+                // 首先按重要性排序
+                const importanceOrder = { high: 3, medium: 2, low: 1 };
+                const importanceDiff = importanceOrder[b.importance] - importanceOrder[a.importance];
+                if (importanceDiff !== 0) return importanceDiff;
+
+                // 然后按紧急程度排序
+                const urgencyOrder = { high: 3, medium: 2, low: 1 };
+                const urgencyDiff = urgencyOrder[b.urgency] - urgencyOrder[a.urgency];
+                if (urgencyDiff !== 0) return urgencyDiff;
+
+                // 按截止日期排序
+                const deadlineDiff = new Date(a.deadline) - new Date(b.deadline);
+                if (deadlineDiff !== 0) return deadlineDiff;
+
+                // 最后按预计时长排序（短任务优先）
+                return a.duration - b.duration;
+            });
+    }
+    
+    /**
+     * 获取活跃项目（已排序）
+     * 排序规则：截止日期 > 重要性 > 兴趣程度
+     */
+    getActiveProjects() {
+        const projects = this.getProjects();
+        return projects
+            .filter(project => !project.completedAt)
+            .sort((a, b) => {
+                // 首先按截止日期排序
+                const deadlineDiff = new Date(a.deadline) - new Date(b.deadline);
+                if (deadlineDiff !== 0) return deadlineDiff;
+
+                // 然后按重要性排序
+                const importanceOrder = { high: 3, medium: 2, low: 1 };
+                const importanceDiff = importanceOrder[b.importance] - importanceOrder[a.importance];
+                if (importanceDiff !== 0) return importanceDiff;
+
+                // 最后按兴趣程度排序
+                const interestOrder = { high: 3, medium: 2, low: 1 };
+                return interestOrder[b.interest] - interestOrder[a.interest];
+            });
+    }
+    
+    /**
+     * 获取活跃的日常任务（未完成的）
+     */
+    getActiveDailyTasks() {
+        const tasks = this.getDailyTasks();
+        return tasks.filter(task => !task.completed);
+    }
+    
+    /**
+     * 获取已完成的任务
+     */
+    getCompletedDailyTasks() {
+        const tasks = this.getDailyTasks();
+        return tasks.filter(task => task.completed);
+    }
+    
+    /**
+     * 获取已完成的待办
+     */
+    getCompletedTodos() {
+        const todos = this.getTodos();
+        return todos.filter(todo => todo.completed);
+    }
+    
+    /**
+     * 获取已完成的项目
+     */
+    getCompletedProjects() {
+        const projects = this.getProjects();
+        return projects.filter(project => project.completedAt);
+    }
 }
 
 // ========================================

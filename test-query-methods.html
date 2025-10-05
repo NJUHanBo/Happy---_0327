@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>测试查询方法 - TaskManager</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .pass { background: #d4edda; color: #155724; }
+        .fail { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background: #007bff;
+            color: white;
+            font-size: 14px;
+        }
+        button:hover { background: #0056b3; }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>TaskManager 查询方法测试</h1>
+    
+    <div class="test-section">
+        <h2>准备测试数据</h2>
+        <button onclick="setupTestData()">创建测试数据</button>
+        <button onclick="clearTestData()">清除测试数据</button>
+        <div id="setup-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>查询方法测试</h2>
+        <button onclick="testGetActiveTodos()">测试 getActiveTodos()</button>
+        <button onclick="testGetActiveProjects()">测试 getActiveProjects()</button>
+        <button onclick="testGetActiveDailyTasks()">测试 getActiveDailyTasks()</button>
+        <button onclick="testAllQueries()">运行所有测试</button>
+        <div id="query-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>UI函数测试</h2>
+        <button onclick="testShowTodoMaster()">测试 showTodoMaster()</button>
+        <button onclick="testShowProjectManager()">测试 showProjectManager()</button>
+        <div id="ui-results"></div>
+    </div>
+
+    <!-- 加载核心模块 -->
+    <script src="scripts/core/storage.js"></script>
+    <script src="scripts/core/state-manager.js"></script>
+    <script src="scripts/core/task-manager.js"></script>
+    
+    <script>
+        let testData = {
+            todos: [],
+            projects: [],
+            dailyTasks: []
+        };
+        
+        // 创建测试数据
+        function setupTestData() {
+            const output = document.getElementById('setup-result');
+            output.innerHTML = '<div class="test-result info">正在创建测试数据...</div>';
+            
+            try {
+                // 初始化state
+                window.state = {
+                    todos: [],
+                    projects: [],
+                    dailyTasks: []
+                };
+                
+                // 初始化managers
+                initStateManager(window.state);
+                const tm = getTaskManager();
+                
+                // 创建待办事项（不同优先级）
+                tm.addTodo({
+                    name: '紧急重要待办',
+                    duration: 2,
+                    importance: 'high',
+                    urgency: 'high',
+                    deadline: new Date(Date.now() + 86400000).toISOString()
+                });
+                
+                tm.addTodo({
+                    name: '中等待办',
+                    duration: 1,
+                    importance: 'medium',
+                    urgency: 'medium',
+                    deadline: new Date(Date.now() + 86400000 * 3).toISOString()
+                });
+                
+                tm.addTodo({
+                    name: '低优先级待办',
+                    duration: 0.5,
+                    importance: 'low',
+                    urgency: 'low',
+                    deadline: new Date(Date.now() + 86400000 * 7).toISOString()
+                });
+                
+                // 创建一个已完成的待办
+                const completedTodoId = Date.now() + 100;
+                tm.addTodo({
+                    id: completedTodoId,
+                    name: '已完成待办',
+                    duration: 1,
+                    importance: 'medium',
+                    urgency: 'medium',
+                    deadline: new Date(Date.now() + 86400000).toISOString()
+                });
+                tm.completeTodo(completedTodoId, 3600, 4);
+                
+                // 创建项目
+                tm.addProject({
+                    name: '紧急项目',
+                    dailyTime: 2,
+                    importance: 'high',
+                    interest: 'high',
+                    deadline: new Date(Date.now() + 86400000 * 2).toISOString(),
+                    milestones: [
+                        { name: '里程碑1', estimatedTime: 10, consumedTime: 0 }
+                    ]
+                });
+                
+                tm.addProject({
+                    name: '普通项目',
+                    dailyTime: 1,
+                    importance: 'medium',
+                    interest: 'medium',
+                    deadline: new Date(Date.now() + 86400000 * 7).toISOString(),
+                    milestones: [
+                        { name: '里程碑1', estimatedTime: 5, consumedTime: 0 }
+                    ]
+                });
+                
+                // 创建日常任务
+                tm.addDailyTask({
+                    name: '日常任务1',
+                    dailyTime: 30,
+                    importance: 'high',
+                    interest: 'medium'
+                });
+                
+                tm.addDailyTask({
+                    name: '日常任务2',
+                    dailyTime: 60,
+                    importance: 'medium',
+                    interest: 'low'
+                });
+                
+                // 创建一个已完成的日常任务
+                const completedTaskId = Date.now() + 200;
+                tm.addDailyTask({
+                    id: completedTaskId,
+                    name: '已完成日常任务',
+                    dailyTime: 30,
+                    importance: 'high',
+                    interest: 'high'
+                });
+                tm.completeDailyTask(completedTaskId, 1800, 5);
+                
+                testData = {
+                    todos: tm.getTodos(),
+                    projects: tm.getProjects(),
+                    dailyTasks: tm.getDailyTasks()
+                };
+                
+                output.innerHTML = `
+                    <div class="test-result pass">
+                        ✅ 测试数据创建成功<br>
+                        - 待办事项: ${testData.todos.length} 个<br>
+                        - 项目: ${testData.projects.length} 个<br>
+                        - 日常任务: ${testData.dailyTasks.length} 个
+                    </div>
+                `;
+            } catch (error) {
+                output.innerHTML = `<div class="test-result fail">❌ 创建失败: ${error.message}</div>`;
+                console.error(error);
+            }
+        }
+        
+        // 清除测试数据
+        function clearTestData() {
+            window.state = {
+                todos: [],
+                projects: [],
+                dailyTasks: []
+            };
+            testData = {
+                todos: [],
+                projects: [],
+                dailyTasks: []
+            };
+            document.getElementById('setup-result').innerHTML = 
+                '<div class="test-result info">测试数据已清除</div>';
+        }
+        
+        // 测试 getActiveTodos
+        function testGetActiveTodos() {
+            const output = document.getElementById('query-results');
+            try {
+                const tm = getTaskManager();
+                const activeTodos = tm.getActiveTodos();
+                
+                const allTodos = tm.getTodos();
+                const expectedActive = allTodos.filter(t => !t.completed);
+                
+                // 验证数量
+                const countPass = activeTodos.length === expectedActive.length;
+                
+                // 验证排序（第一个应该是高优先级高紧急）
+                const sortPass = activeTodos.length > 0 && 
+                                activeTodos[0].importance === 'high' &&
+                                activeTodos[0].urgency === 'high';
+                
+                output.innerHTML = `
+                    <div class="test-result ${countPass && sortPass ? 'pass' : 'fail'}">
+                        ${countPass && sortPass ? '✅' : '❌'} getActiveTodos()<br>
+                        - 返回数量: ${activeTodos.length} / 期望: ${expectedActive.length} ${countPass ? '✓' : '✗'}<br>
+                        - 排序正确: ${sortPass ? '✓' : '✗'}<br>
+                        <pre>${JSON.stringify(activeTodos.map(t => ({
+                            name: t.name,
+                            importance: t.importance,
+                            urgency: t.urgency,
+                            completed: t.completed
+                        })), null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                output.innerHTML = `<div class="test-result fail">❌ 测试失败: ${error.message}</div>`;
+                console.error(error);
+            }
+        }
+        
+        // 测试 getActiveProjects
+        function testGetActiveProjects() {
+            const output = document.getElementById('query-results');
+            try {
+                const tm = getTaskManager();
+                const activeProjects = tm.getActiveProjects();
+                
+                const allProjects = tm.getProjects();
+                const expectedActive = allProjects.filter(p => !p.completedAt);
+                
+                const countPass = activeProjects.length === expectedActive.length;
+                
+                // 验证排序（截止日期最近的应该在前面）
+                const sortPass = activeProjects.length >= 2 && 
+                                new Date(activeProjects[0].deadline) <= new Date(activeProjects[1].deadline);
+                
+                output.innerHTML = `
+                    <div class="test-result ${countPass && sortPass ? 'pass' : 'fail'}">
+                        ${countPass && sortPass ? '✅' : '❌'} getActiveProjects()<br>
+                        - 返回数量: ${activeProjects.length} / 期望: ${expectedActive.length} ${countPass ? '✓' : '✗'}<br>
+                        - 排序正确: ${sortPass ? '✓' : '✗'}<br>
+                        <pre>${JSON.stringify(activeProjects.map(p => ({
+                            name: p.name,
+                            importance: p.importance,
+                            deadline: new Date(p.deadline).toLocaleDateString(),
+                            completed: !!p.completedAt
+                        })), null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                output.innerHTML = `<div class="test-result fail">❌ 测试失败: ${error.message}</div>`;
+                console.error(error);
+            }
+        }
+        
+        // 测试 getActiveDailyTasks
+        function testGetActiveDailyTasks() {
+            const output = document.getElementById('query-results');
+            try {
+                const tm = getTaskManager();
+                const activeTasks = tm.getActiveDailyTasks();
+                
+                const allTasks = tm.getDailyTasks();
+                const expectedActive = allTasks.filter(t => !t.completed);
+                
+                const countPass = activeTasks.length === expectedActive.length;
+                
+                output.innerHTML = `
+                    <div class="test-result ${countPass ? 'pass' : 'fail'}">
+                        ${countPass ? '✅' : '❌'} getActiveDailyTasks()<br>
+                        - 返回数量: ${activeTasks.length} / 期望: ${expectedActive.length} ${countPass ? '✓' : '✗'}<br>
+                        <pre>${JSON.stringify(activeTasks.map(t => ({
+                            name: t.name,
+                            importance: t.importance,
+                            completed: t.completed
+                        })), null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                output.innerHTML = `<div class="test-result fail">❌ 测试失败: ${error.message}</div>`;
+                console.error(error);
+            }
+        }
+        
+        // 运行所有测试
+        function testAllQueries() {
+            testGetActiveTodos();
+            setTimeout(() => {
+                testGetActiveProjects();
+                setTimeout(() => {
+                    testGetActiveDailyTasks();
+                }, 100);
+            }, 100);
+        }
+        
+        // 测试UI函数
+        function testShowTodoMaster() {
+            const output = document.getElementById('ui-results');
+            output.innerHTML = '<div class="test-result info">请在主应用中查看"政务大师"界面是否正常显示并排序正确</div>';
+        }
+        
+        function testShowProjectManager() {
+            const output = document.getElementById('ui-results');
+            output.innerHTML = '<div class="test-result info">请在主应用中查看"项目经理"界面是否正常显示并排序正确</div>';
+        }
+        
+        console.log('测试页面加载完成');
+    </script>
+</body>
+</html>
