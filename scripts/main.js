@@ -1395,6 +1395,7 @@ function skipDailyTasks() {
 }
 
 // 显示日常任务列表
+// [Refactored] Now uses TaskManager.getSortedDailyTasks()
 function showDailyRoutine() {
     if (state.dailyTasks.length === 0) {
         showDialog(`
@@ -1408,21 +1409,11 @@ function showDailyRoutine() {
         return;
     }
 
-    const tasksHtml = state.dailyTasks
-        .sort((a, b) => {
-            // 首先按重要性排序
-            const importanceOrder = { high: 3, medium: 2, low: 1 };
-            const importanceDiff = importanceOrder[b.importance] - importanceOrder[a.importance];
-            if (importanceDiff !== 0) return importanceDiff;
-
-            // 然后按兴趣程度排序
-            const interestOrder = { high: 3, medium: 2, low: 1 };
-            const interestDiff = interestOrder[b.interest] - interestOrder[a.interest];
-            if (interestDiff !== 0) return interestDiff;
-
-            // 最后按持续时间排序（时间短的优先）
-            return a.duration - b.duration;
-        })
+    // Use TaskManager for sorting
+    const tm = getTaskManager();
+    const sortedTasks = tm ? tm.getSortedDailyTasks() : state.dailyTasks;
+    
+    const tasksHtml = sortedTasks
         .map(task => `
             <div class="task-card" data-task-id="${task.id}">
                 <div class="task-actions">

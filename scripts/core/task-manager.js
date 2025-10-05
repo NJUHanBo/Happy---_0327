@@ -652,6 +652,28 @@ class TaskManager {
     }
     
     /**
+     * 获取已排序的日常任务
+     * 排序规则：重要性 > 兴趣程度 > 持续时间（短的优先）
+     */
+    getSortedDailyTasks() {
+        const tasks = this.getDailyTasks();
+        return tasks.sort((a, b) => {
+            // 首先按重要性排序
+            const importanceOrder = { high: 3, medium: 2, low: 1 };
+            const importanceDiff = importanceOrder[b.importance] - importanceOrder[a.importance];
+            if (importanceDiff !== 0) return importanceDiff;
+
+            // 然后按兴趣程度排序
+            const interestOrder = { high: 3, medium: 2, low: 1 };
+            const interestDiff = interestOrder[b.interest] - interestOrder[a.interest];
+            if (interestDiff !== 0) return interestDiff;
+
+            // 最后按持续时间排序（时间短的优先）
+            return a.duration - b.duration;
+        });
+    }
+    
+    /**
      * 获取已完成的任务
      */
     getCompletedDailyTasks() {

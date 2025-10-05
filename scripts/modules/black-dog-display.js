@@ -32,6 +32,7 @@ if (window.blackDogDisplayLoaded) {
     const originalShowProjectManager = window.showProjectManager;
 
     // 重写显示日常任务列表函数
+    // [Refactored] Now uses TaskManager.getSortedDailyTasks()
     window.showDailyRoutine = function() {
         if (state.dailyTasks.length === 0) {
             showDialog(`
@@ -45,21 +46,11 @@ if (window.blackDogDisplayLoaded) {
             return;
         }
 
-        const tasksHtml = state.dailyTasks
-            .sort((a, b) => {
-                // 首先按重要性排序
-                const importanceOrder = { high: 3, medium: 2, low: 1 };
-                const importanceDiff = importanceOrder[b.importance] - importanceOrder[a.importance];
-                if (importanceDiff !== 0) return importanceDiff;
-
-                // 然后按兴趣程度排序
-                const interestOrder = { high: 3, medium: 2, low: 1 };
-                const interestDiff = interestOrder[b.interest] - interestOrder[a.interest];
-                if (interestDiff !== 0) return interestDiff;
-
-                // 最后按持续时间排序（时间短的优先）
-                return a.duration - b.duration;
-            })
+        // Use TaskManager for sorting
+        const tm = getTaskManager();
+        const sortedTasks = tm ? tm.getSortedDailyTasks() : state.dailyTasks;
+        
+        const tasksHtml = sortedTasks
             .map(task => {
                 // 检查是否是黑狗任务
                 const isBlackDog = isBlackDogTask(task);
