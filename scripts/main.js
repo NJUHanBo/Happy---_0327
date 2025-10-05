@@ -4073,26 +4073,43 @@ function removeBackground() {
 }
 
 // 完成项目节点
+// [Refactored] Now uses TaskManager for core logic
 function completeMilestone(projectId) {
+    // 获取当前项目（用于预检查）
     const project = state.projects.find(p => p.id === projectId);
     if (!project) return;
     
-    const milestone = project.milestones[project.currentMilestone];
-    if (!milestone) return;
-    
-    // 计算实际工作时长（如果没有计时器时间则使用项目每日时间）
+    // 计算实际工作时长
     const workTimeInSeconds = timerState.seconds || (project.dailyTime * 60 * 60);
-    const workTimeInHours = workTimeInSeconds / 3600;
     
-    // 更新已投入时间
-    if (!milestone.timeSpent) {
-        milestone.timeSpent = 0;
+    // Use TaskManager for core business logic
+    const tm = getTaskManager();
+    let result;
+    
+    if (tm) {
+        result = tm.completeMilestone(projectId, workTimeInSeconds);
+        if (!result) return;
+    } else {
+        // Fallback (simplified)
+        const milestone = project.milestones[project.currentMilestone];
+        if (!milestone) return;
+        
+        const workTimeInHours = workTimeInSeconds / 3600;
+        const energyCost = Math.round((workTimeInHours / 8) * 100);
+        const spiritCost = project.interest === 'high' ? -20 : (project.interest === 'low' ? 40 : 20);
+        
+        milestone.completed = true;
+        milestone.completedAt = new Date().toISOString();
+        project.currentMilestone++;
+        
+        const isProjectComplete = project.currentMilestone >= project.milestones.length;
+        const sawdustReward = isProjectComplete ? 200 : 60;
+        const baseFlameReward = isProjectComplete ? 100 : 40;
+        
+        result = { project, milestone, energyCost, spiritCost, sawdustReward, baseFlameReward, isProjectComplete };
     }
-    milestone.timeSpent += workTimeInHours;
     
-    // 计算消耗
-    const energyCost = Math.round((workTimeInHours / 8) * 100);
-    const spiritCost = project.interest === 'high' ? -20 : (project.interest === 'low' ? 40 : 20);
+    const { milestone, energyCost, spiritCost, sawdustReward, baseFlameReward, isProjectComplete } = result;
     
     // 检查是否有足够的体力和精力
     if (state.stats.energy < energyCost || (spiritCost > 0 && state.stats.spirit < spiritCost)) {
@@ -4103,39 +4120,32 @@ function completeMilestone(projectId) {
     // 更新体力和精力
     state.stats.energy = Math.max(0, state.stats.energy - energyCost);
     state.stats.spirit = Math.max(0, Math.min(100, state.stats.spirit - spiritCost));
-
-    milestone.completed = true;
-    milestone.completedAt = new Date().toISOString();
-
-    // 更新项目进度
-    project.currentMilestone++;
     
-    // 检查是否完成所有节点
-    if (project.currentMilestone >= project.milestones.length) {
-        project.completedAt = new Date().toISOString();
-        // 给予完整项目奖励
-        const projectSawdustReward = 200;
-        const baseFlameReward = 100;
-        
-        // 使用calculateFlameReward函数计算最终火苗奖励（考虑镜子效果等）
-        const flameReward = calculateFlameReward(baseFlameReward);
-        
-        state.stats.flame += flameReward;
-        state.stats.sawdust += projectSawdustReward;
-        
-        // 添加日志
-        state.logs.push(`[第${state.stats.totalDays}天] 完成项目：${project.name}，获得火苗：${flameReward}，获得木屑：${projectSawdustReward}，消耗体力：${energyCost}，${spiritCost < 0 ? '恢复精力：' + (-spiritCost) : '消耗精力：' + spiritCost}`);
-        
-        saveState();
-        updateUI();
-        closeDialog(); // 先关闭当前对话框
-        
+    // 使用calculateFlameReward函数计算最终火苗奖励（考虑镜子效果等）
+    const flameReward = calculateFlameReward(baseFlameReward);
+    
+    state.stats.flame += flameReward;
+    state.stats.sawdust += sawdustReward;
+    
+    // 添加日志
+    if (isProjectComplete) {
+        state.logs.push(`[第${state.stats.totalDays}天] 完成项目：${project.name}，获得火苗：${flameReward}，获得木屑：${sawdustReward}，消耗体力：${energyCost}，${spiritCost < 0 ? '恢复精力：' + (-spiritCost) : '消耗精力：' + spiritCost}`);
+    } else {
+        state.logs.push(`[第${state.stats.totalDays}天] 完成项目节点：${project.name} - ${milestone.name}，获得火苗：${flameReward}，获得木屑：${sawdustReward}，消耗体力：${energyCost}，${spiritCost < 0 ? '恢复精力：' + (-spiritCost) : '消耗精力：' + spiritCost}`);
+    }
+    
+    saveState();
+    updateUI();
+    closeDialog(); // 先关闭当前对话框
+    
+    // 显示UI对话框
+    if (isProjectComplete) {
         showDialog(`
             <h2>恭喜！项目完成！</h2>
             <p>你已经完成了"${project.name}"的所有节点！</p>
             <div class="reward-summary">
                 <p>获得火苗：${flameReward}${state.shop.activeEffects.mirror ? ' (镜子效果翻倍)' : ''}</p>
-                <p>获得木屑：${projectSawdustReward}</p>
+                <p>获得木屑：${sawdustReward}</p>
                 <p>消耗体力：${energyCost}</p>
                 ${spiritCost < 0 ? `<p>恢复精力：${-spiritCost}</p>` : `<p>消耗精力：${spiritCost}</p>`}
             </div>
@@ -4144,29 +4154,12 @@ function completeMilestone(projectId) {
             </div>
         `);
     } else {
-        // 给予节点完成奖励
-        const milestoneSawdustReward = 60;
-        const baseFlameReward = 40;
-        
-        // 使用calculateFlameReward函数计算最终火苗奖励（考虑镜子效果等）
-        const flameReward = calculateFlameReward(baseFlameReward);
-        
-        state.stats.flame += flameReward;
-        state.stats.sawdust += milestoneSawdustReward;
-        
-        // 添加日志
-        state.logs.push(`[第${state.stats.totalDays}天] 完成项目节点：${project.name} - ${milestone.name}，获得火苗：${flameReward}，获得木屑：${milestoneSawdustReward}，消耗体力：${energyCost}，${spiritCost < 0 ? '恢复精力：' + (-spiritCost) : '消耗精力：' + spiritCost}`);
-        
-        saveState();
-        updateUI();
-        closeDialog(); // 先关闭当前对话框
-        
         showDialog(`
             <h2>节点完成！</h2>
             <p>你完成了"${milestone.name}"！</p>
             <div class="reward-summary">
                 <p>获得火苗：${flameReward}${state.shop.activeEffects.mirror ? ' (镜子效果翻倍)' : ''}</p>
-                <p>获得木屑：${milestoneSawdustReward}</p>
+                <p>获得木屑：${sawdustReward}</p>
                 <p>消耗体力：${energyCost}</p>
                 ${spiritCost < 0 ? `<p>恢复精力：${-spiritCost}</p>` : `<p>消耗精力：${spiritCost}</p>`}
             </div>

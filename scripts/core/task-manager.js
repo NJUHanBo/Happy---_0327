@@ -276,46 +276,82 @@ class TaskManager {
     }
     
     /**
-     * 完成项目里程碑
+     * 完成项目里程碑（包含业务逻辑：时间跟踪、消耗计算、奖励计算）
      */
-    completeProjectMilestone(projectId, actualTime, quality) {
-        const project = this.getProjects().find(p => p.id === projectId);
+    completeMilestone(projectId, workTimeInSeconds) {
+        const projects = this.getProjects();
+        const project = projects.find(p => p.id === projectId);
         
         if (!project) {
             console.error('[TaskManager] Project not found:', projectId);
             return null;
         }
         
-        const currentMilestone = project.currentMilestone || 0;
+        const currentMilestoneIndex = project.currentMilestone || 0;
+        const milestone = project.milestones[currentMilestoneIndex];
         
-        if (currentMilestone >= project.milestones.length) {
-            console.warn('[TaskManager] Project already completed:', project.name);
+        if (!milestone) {
+            console.error('[TaskManager] No current milestone:', project.name);
             return null;
         }
         
-        // 更新里程碑
-        const milestone = project.milestones[currentMilestone];
+        // 计算工作时长（小时）
+        const workTimeInHours = workTimeInSeconds / 3600;
+        
+        // 更新已投入时间
+        if (!milestone.timeSpent) {
+            milestone.timeSpent = 0;
+        }
+        milestone.timeSpent += workTimeInHours;
+        
+        // 计算消耗
+        const energyCost = Math.round((workTimeInHours / 8) * 100);
+        const spiritCost = project.interest === 'high' ? -20 : (project.interest === 'low' ? 40 : 20);
+        
+        // 标记milestone完成
         milestone.completed = true;
-        milestone.actualTime = actualTime;
-        milestone.quality = quality;
         milestone.completedAt = new Date().toISOString();
         
         // 推进到下一个里程碑
-        const updates = {
-            currentMilestone: currentMilestone + 1,
-            milestones: project.milestones
-        };
+        project.currentMilestone++;
         
-        // 如果所有里程碑完成，标记项目完成
-        if (updates.currentMilestone >= project.milestones.length) {
-            updates.completed = true;
-            updates.completedAt = new Date().toISOString();
+        // 检查是否完成所有节点
+        const isProjectComplete = project.currentMilestone >= project.milestones.length;
+        
+        if (isProjectComplete) {
+            project.completedAt = new Date().toISOString();
         }
         
-        this.updateProject(projectId, updates);
+        // 计算奖励
+        let sawdustReward, baseFlameReward;
+        if (isProjectComplete) {
+            // 整个项目完成
+            sawdustReward = 200;
+            baseFlameReward = 100;
+        } else {
+            // 只是节点完成
+            sawdustReward = 60;
+            baseFlameReward = 40;
+        }
         
-        console.log('[TaskManager] Project milestone completed:', milestone.name);
-        return { project: { ...project, ...updates }, milestone };
+        // 同步更新
+        this.updateProject(projectId, project);
+        
+        console.log('[TaskManager] Milestone completed:', 
+                    milestone.name, 
+                    'energyCost:', energyCost,
+                    'spiritCost:', spiritCost,
+                    'projectComplete:', isProjectComplete);
+        
+        return {
+            project,
+            milestone,
+            energyCost,
+            spiritCost,
+            sawdustReward,
+            baseFlameReward,
+            isProjectComplete
+        };
     }
     
     // ========================================
