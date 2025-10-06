@@ -2799,8 +2799,10 @@ function completeProjectSession(projectId) {
 }
 
 // 完成项目进度
+// [Refactored] Now uses TaskManager.getProjectById()
 function finishProjectProgress(projectId) {
-    const project = state.projects.find(p => p.id === projectId);
+    const tm = getTaskManager();
+    const project = tm ? tm.getProjectById(projectId) : state.projects.find(p => p.id === projectId);
     if (!project) return;
 
     if (!window.currentRating) {
@@ -4226,9 +4228,11 @@ function removeBackground() {
 
 // 完成项目节点
 // [Refactored] Now uses TaskManager for core logic
+// [Refactored] Now uses TaskManager.getProjectById() and completeMilestone()
 function completeMilestone(projectId) {
     // 获取当前项目（用于预检查）
-    const project = state.projects.find(p => p.id === projectId);
+    const tm = getTaskManager();
+    const project = tm ? tm.getProjectById(projectId) : state.projects.find(p => p.id === projectId);
     if (!project) return;
     
     // 计算实际工作时长
