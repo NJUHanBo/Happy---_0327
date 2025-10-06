@@ -1448,9 +1448,11 @@ function skipDailyTasks() {
 }
 
 // 显示日常任务列表
-// [Refactored] Now uses TaskManager.getSortedDailyTasks()
+// [Refactored] Now uses TaskManager.getSortedDailyTasks() and getDailyTasks()
 function showDailyRoutine() {
-    if (state.dailyTasks.length === 0) {
+    const tm = getTaskManager();
+    const dailyTasks = tm ? tm.getDailyTasks() : state.dailyTasks;
+    if (dailyTasks.length === 0) {
         showDialog(`
             <h2>我的日常</h2>
             <p>你还没有添加任何日常任务。</p>
