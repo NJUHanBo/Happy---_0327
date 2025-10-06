@@ -5882,11 +5882,11 @@ function removeEditMilestone(event, milestoneId) {
 }
 
 // 保存编辑后的项目
+// [Refactored] Now uses TaskManager.getProjectById() for lookup
 function saveEditedProject(projectId) {
-    const projectIndex = state.projects.findIndex(p => p.id === projectId);
-    if (projectIndex === -1) return;
-    
-    const project = state.projects[projectIndex];
+    const tm = getTaskManager();
+    const project = tm ? tm.getProjectById(projectId) : state.projects.find(p => p.id === projectId);
+    if (!project) return;
     
     // 获取表单值
     const name = document.getElementById('edit-project-name').value.trim();
