@@ -2,40 +2,41 @@
 
 **目标：** 将main.js中41个任务函数迁移到使用TaskManager API
 
-**当前进度：** 16/41 (39%)
+**当前进度：** 20/41 (49%)
 
 ---
 
-## ✅ 已迁移 (16个)
+## ✅ 已迁移 (20个)
 
-### 日常任务 (6/~14)
+### 日常任务 (7/~14)
 - [x] `confirmDeleteDailyTask()` → TaskManager.deleteDailyTask()
 - [x] `addDailyTask()` → TaskManager.addDailyTask()
-- [ ] `editDailyTask()` (UI only, no migration needed)
+- [x] `editDailyTask()` → TaskManager.getDailyTaskById() ✨ NEW
 - [x] `saveEditedDailyTask()` → TaskManager.updateDailyTask()
 - [x] `showDailyRoutine()` → TaskManager.getSortedDailyTasks()
-- [x] `startDailyTask()` → TaskManager.getDailyTaskById() ✨ NEW
+- [x] `startDailyTask()` → TaskManager.getDailyTaskById()
 - [ ] `completeDailyTask()` (UI only, no migration needed)
 - [x] `finishDailyTask()` → TaskManager.completeDailyTask() (includes business logic)
 - [ ] 其他...
 
-### 项目 (3/~14)
+### 项目 (5/~14)
 - [x] `confirmDeleteProject()` → TaskManager.deleteProject()
 - [x] `addProject()` → TaskManager.addProject()
-- [ ] `editProject()` (complex, deferred)
+- [x] `editProject()` → TaskManager.getProjectById() ✨ NEW
 - [ ] `saveEditedProject()` (complex, deferred)
-- [x] `startProject()` → TaskManager.getProjectById() ✨ NEW
+- [x] `startProject()` → TaskManager.getProjectById()
+- [x] `showProjectDetails()` → TaskManager.getProjectById() ✨ NEW
 - [ ] `completeProjectSession()`
 - [ ] `finishProjectProgress()`
 - [ ] 其他...
 
-### 待办事项 (7/~13)
+### 待办事项 (8/~13)
 - [x] `addTodo()` → TaskManager.addTodo()
 - [x] `deleteTodo()` → 新增UI函数 (显示确认对话框)
 - [x] `confirmDeleteTodo()` → TaskManager.deleteTodo()
-- [x] `editTodo()` → 新增UI函数 (显示编辑对话框)
+- [x] `editTodo()` → TaskManager.getTodoById() ✨ NEW
 - [x] `saveEditedTodo()` → TaskManager.updateTodo()
-- [x] `startTodo()` → TaskManager.getTodoById() ✨ NEW
+- [x] `startTodo()` → TaskManager.getTodoById()
 - [ ] `completeTodo()` (UI only, no migration needed)
 - [x] `finishTodo()` → TaskManager.completeTodo() (includes business logic)
 - [ ] 其他...
@@ -45,17 +46,18 @@
 ## 📊 统计
 
 ```
-已迁移：16个函数 (39%)
-待迁移：25个函数 (61%)
+已迁移：20个函数 (49%)
+待迁移：21个函数 (51%)
 估算减少行数：每10个函数 ~80-120行
 总预期减少：~300-430行（当全部迁移完成）
-当前已减少：~160-190行
+当前已减少：~190-230行
 新增功能：待办事项编辑/删除 (4个函数，~120行)
 新增查询方法：
   - getSortedDailyTasks()
   - getDailyTaskById()
   - getProjectById()
   - getTodoById()
+本轮新增：4个函数使用getById (editTodo, editDailyTask, editProject, showProjectDetails)
 ```
 
 ---
