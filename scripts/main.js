@@ -590,6 +590,7 @@ function updateUI() {
 }
 
 // 显示对话框
+// [Refactored] Now uses TaskManager for task list display
 function showDialog(content, showTaskList = false, taskType = '') {
     const dialogContainer = document.getElementById('dialog-container');
     let taskListHtml = '';
@@ -597,18 +598,19 @@ function showDialog(content, showTaskList = false, taskType = '') {
     if (showTaskList) {
         let tasks = [];
         let taskTitle = '';
+        const tm = getTaskManager();
         
         switch(taskType) {
             case 'daily':
-                tasks = state.dailyTasks;
+                tasks = tm ? tm.getDailyTasks() : state.dailyTasks;
                 taskTitle = '已添加的日常任务';
                 break;
             case 'project':
-                tasks = state.projects;
+                tasks = tm ? tm.getProjects() : state.projects;
                 taskTitle = '已添加的项目';
                 break;
             case 'todo':
-                tasks = state.todos;
+                tasks = tm ? tm.getTodos() : state.todos;
                 taskTitle = '已添加的待办事项';
                 break;
         }
