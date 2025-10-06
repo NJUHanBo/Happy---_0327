@@ -1959,7 +1959,6 @@ function showTodoMaster() {
     }
 
     // Use TaskManager for sorting
-    const tm = getTaskManager();
     const activeTodos = tm ? tm.getActiveTodos() : state.todos.filter(todo => !todo.completed);
     
     const todosHtml = activeTodos
@@ -2619,7 +2618,6 @@ function showProjectManager() {
     }
 
     // Use TaskManager for sorting
-    const tm = getTaskManager();
     const activeProjects = tm ? tm.getActiveProjects() : state.projects.filter(project => !project.completedAt);
     
     const projectsHtml = activeProjects
@@ -4251,7 +4249,6 @@ function completeMilestone(projectId) {
     const workTimeInSeconds = timerState.seconds || (project.dailyTime * 60 * 60);
     
     // Use TaskManager for core business logic
-    const tm = getTaskManager();
     let result;
     
     if (tm) {
