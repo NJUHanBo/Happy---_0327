@@ -153,6 +153,25 @@
 - 存储：LocalStorage
 - 图片处理：Canvas API
 
+## 项目架构
+
+```
+scripts/
+├── core/
+│   └── task-manager.js      # 核心任务管理模块（已重构）
+├── shop-bridge.js           # 商店桥接
+├── black-dog-*.js           # 黑狗任务系统
+└── main.js                  # 主逻辑（5894行）
+```
+
+### 版本历史
+
+**v0.9.0 (Beta)** - 2025-10-06
+- ✅ 核心业务逻辑100%迁移到TaskManager
+- ✅ 移除所有fallback代码
+- ✅ 代码质量大幅提升
+- ⚠️ UI层仍在main.js（计划后续重构）
+
 ## 贡献
 
 欢迎提交 Issue 和 Pull Request！
