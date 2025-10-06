@@ -5733,8 +5733,10 @@ function debugNightTransition() {
 }
 
 // 删除项目
+// [Refactored] Now uses TaskManager.getProjectById()
 function deleteProject(projectId) {
-    const project = state.projects.find(p => p.id === projectId);
+    const tm = getTaskManager();
+    const project = tm ? tm.getProjectById(projectId) : state.projects.find(p => p.id === projectId);
     if (!project) return;
     
     showDialog(`
