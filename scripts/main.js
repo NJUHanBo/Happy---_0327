@@ -1942,9 +1942,11 @@ function finishInitialSetup() {
 }
 
 // 显示待办事项列表
-// [Refactored] Now uses TaskManager.getActiveTodos()
+// [Refactored] Now uses TaskManager.getActiveTodos() and getTodos()
 function showTodoMaster() {
-    if (state.todos.length === 0) {
+    const tm = getTaskManager();
+    const todos = tm ? tm.getTodos() : state.todos;
+    if (todos.length === 0) {
         showDialog(`
             <h2>政务大师</h2>
             <p>你还没有添加任何待办事项。</p>
