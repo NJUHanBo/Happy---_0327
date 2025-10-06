@@ -1693,13 +1693,15 @@ function resumeTask() {
 }
 
 // 完成日常任务
+// [Refactored] Now uses TaskManager.getDailyTaskById()
 function completeDailyTask(taskId) {
     if (timerState.intervalId) {
         clearInterval(timerState.intervalId);
         timerState.intervalId = null;
     }
 
-    const task = state.dailyTasks.find(t => t.id === taskId);
+    const tm = getTaskManager();
+    const task = tm ? tm.getDailyTaskById(taskId) : state.dailyTasks.find(t => t.id === taskId);
     if (!task) return;
 
     const actualTime = Math.round((Date.now() - timerState.startTime) / 1000);
@@ -2204,13 +2206,15 @@ function resumeTodo() {
 }
 
 // 完成待办事项
+// [Refactored] Now uses TaskManager.getTodoById()
 function completeTodo(todoId) {
     if (timerState.intervalId) {
         clearInterval(timerState.intervalId);
         timerState.intervalId = null;
     }
 
-    const todo = state.todos.find(t => t.id === todoId);
+    const tm = getTaskManager();
+    const todo = tm ? tm.getTodoById(todoId) : state.todos.find(t => t.id === todoId);
     if (!todo) return;
 
     const actualTime = Math.round((Date.now() - timerState.startTime) / 1000);
