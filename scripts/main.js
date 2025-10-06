@@ -1465,7 +1465,6 @@ function showDailyRoutine() {
     }
 
     // Use TaskManager for sorting
-    const tm = getTaskManager();
     const sortedTasks = tm ? tm.getSortedDailyTasks() : state.dailyTasks;
     
     const tasksHtml = sortedTasks
