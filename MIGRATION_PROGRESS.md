@@ -2,11 +2,11 @@
 
 **目标：** 将main.js中41个任务函数迁移到使用TaskManager API
 
-**当前进度：** 25/41 (61%) 🎉
+**当前进度：** 28/41 (68%) 🔥
 
 ---
 
-## ✅ 已迁移 (25个)
+## ✅ 已迁移 (28个)
 
 ### 统计和显示 (3个) ✨ NEW
 - [x] `showDialog()` → TaskManager.getDailyTasks/getProjects/getTodos() ✨ NEW
@@ -24,16 +24,17 @@
 - [x] `finishDailyTask()` → TaskManager.completeDailyTask() (includes business logic)
 - [ ] 其他...
 
-### 项目 (7/~14)
+### 项目 (10/~14) 🔥 NEW
 - [x] `confirmDeleteProject()` → TaskManager.deleteProject()
 - [x] `deleteProject()` → TaskManager.getProjectById()
 - [x] `addProject()` → TaskManager.addProject()
 - [x] `editProject()` → TaskManager.getProjectById()
-- [x] `saveEditedProject()` → TaskManager.getProjectById() 🎉 NEW (部分迁移)
+- [x] `saveEditedProject()` → TaskManager.getProjectById()
 - [x] `startProject()` → TaskManager.getProjectById()
 - [x] `showProjectDetails()` → TaskManager.getProjectById()
-- [ ] `completeProjectSession()`
-- [ ] `finishProjectProgress()`
+- [x] `completeProjectSession()` → TaskManager.getProjectById() ✨ NEW
+- [x] `finishProjectProgress()` → TaskManager.getProjectById() ✨ NEW
+- [x] `completeMilestone()` → TaskManager.getProjectById() ✨ NEW (查找部分)
 - [ ] 其他...
 
 ### 待办事项 (8/~13)
@@ -52,8 +53,8 @@
 ## 📊 统计
 
 ```
-已迁移：25个函数 (61%) 🎉 突破60%！
-待迁移：16个函数 (39%)
+已迁移：28个函数 (68%) 🔥 冲刺75%！
+待迁移：13个函数 (32%)
 估算减少行数：每10个函数 ~80-120行
 总预期减少：~300-430行（当全部迁移完成）
 当前已减少：~210-260行
