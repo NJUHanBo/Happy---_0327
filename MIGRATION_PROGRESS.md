@@ -2,11 +2,15 @@
 
 **目标：** 将main.js中41个任务函数迁移到使用TaskManager API
 
-**当前进度：** 20/41 (49%)
+**当前进度：** 22/41 (54%)
 
 ---
 
-## ✅ 已迁移 (20个)
+## ✅ 已迁移 (22个)
+
+### 统计和显示 (2个) ✨ NEW
+- [x] `showStats()` → TaskManager.getTaskStats()
+- [x] `generateDaySummary()` → TaskManager.getTaskStats()
 
 ### 日常任务 (7/~14)
 - [x] `confirmDeleteDailyTask()` → TaskManager.deleteDailyTask()
@@ -46,18 +50,20 @@
 ## 📊 统计
 
 ```
-已迁移：20个函数 (49%)
-待迁移：21个函数 (51%)
+已迁移：22个函数 (54%)
+待迁移：19个函数 (46%)
 估算减少行数：每10个函数 ~80-120行
 总预期减少：~300-430行（当全部迁移完成）
-当前已减少：~190-230行
+当前已减少：~210-260行
 新增功能：待办事项编辑/删除 (4个函数，~120行)
 新增查询方法：
   - getSortedDailyTasks()
   - getDailyTaskById()
   - getProjectById()
   - getTodoById()
-本轮新增：4个函数使用getById (editTodo, editDailyTask, editProject, showProjectDetails)
+  - getTaskStats() ✨ NEW - 全面的统计方法
+上一轮：4个函数使用getById (editTodo, editDailyTask, editProject, showProjectDetails)
+本轮新增：2个统计函数使用getTaskStats (showStats, generateDaySummary)
 ```
 
 ---
