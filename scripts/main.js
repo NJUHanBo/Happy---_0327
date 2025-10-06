@@ -2766,13 +2766,15 @@ function resumeProject() {
 }
 
 // 完成项目工作环节
+// [Refactored] Now uses TaskManager.getProjectById()
 function completeProjectSession(projectId) {
     if (timerState.intervalId) {
         clearInterval(timerState.intervalId);
         timerState.intervalId = null;
     }
 
-    const project = state.projects.find(p => p.id === projectId);
+    const tm = getTaskManager();
+    const project = tm ? tm.getProjectById(projectId) : state.projects.find(p => p.id === projectId);
     if (!project) return;
 
     const milestone = project.milestones[project.currentMilestone];
