@@ -2602,9 +2602,11 @@ function startThoughtTimer() {
 }
 
 // 显示项目经理界面
-// [Refactored] Now uses TaskManager.getActiveProjects()
+// [Refactored] Now uses TaskManager.getActiveProjects() and getProjects()
 function showProjectManager() {
-    if (state.projects.length === 0) {
+    const tm = getTaskManager();
+    const projects = tm ? tm.getProjects() : state.projects;
+    if (projects.length === 0) {
         showDialog(`
             <h2>项目经理</h2>
             <p>你还没有添加任何项目。</p>
