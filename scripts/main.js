@@ -22,8 +22,10 @@ function showAddProjectDialog() {
 }
 
 // 添加项目详情展示函数
+// [Refactored] Now uses TaskManager.getProjectById()
 function showProjectDetails(projectId) {
-    const project = state.projects.find(p => p.id === projectId);
+    const tm = getTaskManager();
+    const project = tm ? tm.getProjectById(projectId) : state.projects.find(p => p.id === projectId);
     if (!project) return;
     
     // 计算项目进度
@@ -1968,8 +1970,10 @@ function confirmDeleteTodo(todoId) {
 }
 
 // 编辑待办事项
+// [Refactored] Now uses TaskManager.getTodoById()
 function editTodo(todoId) {
-    const todo = state.todos.find(t => t.id === todoId);
+    const tm = getTaskManager();
+    const todo = tm ? tm.getTodoById(todoId) : state.todos.find(t => t.id === todoId);
     if (!todo) return;
 
     showDialog(`
@@ -4731,8 +4735,10 @@ function confirmDeleteDailyTask(taskId) {
 }
 
 // 编辑日常任务
+// [Refactored] Now uses TaskManager.getDailyTaskById()
 function editDailyTask(taskId) {
-    const task = state.dailyTasks.find(t => t.id === taskId);
+    const tm = getTaskManager();
+    const task = tm ? tm.getDailyTaskById(taskId) : state.dailyTasks.find(t => t.id === taskId);
     if (!task) return;
 
     showDialog(`
@@ -5720,8 +5726,10 @@ function confirmDeleteProject(projectId) {
 }
 
 // 编辑项目
+// [Refactored] Now uses TaskManager.getProjectById()
 function editProject(projectId) {
-    const project = state.projects.find(p => p.id === projectId);
+    const tm = getTaskManager();
+    const project = tm ? tm.getProjectById(projectId) : state.projects.find(p => p.id === projectId);
     if (!project) return;
     
     // 准备编辑内容
