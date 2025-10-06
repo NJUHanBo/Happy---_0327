@@ -720,6 +720,58 @@ class TaskManager {
         const projects = this.getProjects();
         return projects.filter(project => project.completedAt);
     }
+    
+    /**
+     * 获取任务统计信息
+     * @param {string} date - 可选，日期字符串 (YYYY-MM-DD)，默认为今天
+     */
+    getTaskStats(date = null) {
+        const targetDate = date || new Date().toISOString().split('T')[0];
+        
+        const dailyTasks = this.getDailyTasks();
+        const projects = this.getProjects();
+        const todos = this.getTodos();
+        
+        // 统计日常任务
+        const dailyStats = {
+            total: dailyTasks.length,
+            completedToday: dailyTasks.filter(task => 
+                task.lastCompleted === targetDate
+            ).length
+        };
+        
+        // 统计项目
+        const projectStats = {
+            active: projects.filter(p => !p.completedAt).length,
+            completed: projects.filter(p => p.completedAt).length,
+            total: projects.length
+        };
+        
+        // 统计待办
+        const todoStats = {
+            active: todos.filter(t => !t.completed).length,
+            completed: todos.filter(t => t.completed).length,
+            completedToday: todos.filter(todo => 
+                todo.completedAt && new Date(todo.completedAt).toISOString().split('T')[0] === targetDate
+            ).length,
+            total: todos.length
+        };
+        
+        // 统计今天完成的项目里程碑
+        const milestonesCompletedToday = projects.reduce((count, project) => {
+            return count + project.milestones.filter(milestone => 
+                milestone.completedAt && new Date(milestone.completedAt).toISOString().split('T')[0] === targetDate
+            ).length;
+        }, 0);
+        
+        return {
+            daily: dailyStats,
+            project: projectStats,
+            todo: todoStats,
+            milestonesCompletedToday,
+            date: targetDate
+        };
+    }
 }
 
 // ========================================
