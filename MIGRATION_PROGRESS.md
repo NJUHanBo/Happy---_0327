@@ -2,11 +2,11 @@
 
 **目标：** 将main.js中41个任务函数迁移到使用TaskManager API
 
-**当前进度：** 22/41 (54%)
+**当前进度：** 23/41 (56%)
 
 ---
 
-## ✅ 已迁移 (22个)
+## ✅ 已迁移 (23个)
 
 ### 统计和显示 (2个) ✨ NEW
 - [x] `showStats()` → TaskManager.getTaskStats()
@@ -23,13 +23,14 @@
 - [x] `finishDailyTask()` → TaskManager.completeDailyTask() (includes business logic)
 - [ ] 其他...
 
-### 项目 (5/~14)
+### 项目 (6/~14)
 - [x] `confirmDeleteProject()` → TaskManager.deleteProject()
+- [x] `deleteProject()` → TaskManager.getProjectById() ✨ NEW
 - [x] `addProject()` → TaskManager.addProject()
-- [x] `editProject()` → TaskManager.getProjectById() ✨ NEW
+- [x] `editProject()` → TaskManager.getProjectById()
 - [ ] `saveEditedProject()` (complex, deferred)
 - [x] `startProject()` → TaskManager.getProjectById()
-- [x] `showProjectDetails()` → TaskManager.getProjectById() ✨ NEW
+- [x] `showProjectDetails()` → TaskManager.getProjectById()
 - [ ] `completeProjectSession()`
 - [ ] `finishProjectProgress()`
 - [ ] 其他...
@@ -50,8 +51,8 @@
 ## 📊 统计
 
 ```
-已迁移：22个函数 (54%)
-待迁移：19个函数 (46%)
+已迁移：23个函数 (56%)
+待迁移：18个函数 (44%)
 估算减少行数：每10个函数 ~80-120行
 总预期减少：~300-430行（当全部迁移完成）
 当前已减少：~210-260行
