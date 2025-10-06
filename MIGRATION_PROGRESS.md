@@ -2,25 +2,25 @@
 
 **目标：** 将main.js中41个任务函数迁移到使用TaskManager API
 
-**当前进度：** 28/41 (68%) 🔥
+**当前进度:**31/41 (75.6%) 🎉 **突破75%里程碑！**
 
 ---
 
-## ✅ 已迁移 (28个)
+## ✅ 已迁移 (31个) 🎉
 
 ### 统计和显示 (3个) ✨ NEW
 - [x] `showDialog()` → TaskManager.getDailyTasks/getProjects/getTodos() ✨ NEW
 - [x] `showStats()` → TaskManager.getTaskStats()
 - [x] `generateDaySummary()` → TaskManager.getTaskStats()
 
-### 日常任务 (7/~14)
+### 日常任务 (9/~14) 🔥
 - [x] `confirmDeleteDailyTask()` → TaskManager.deleteDailyTask()
 - [x] `addDailyTask()` → TaskManager.addDailyTask()
-- [x] `editDailyTask()` → TaskManager.getDailyTaskById() ✨ NEW
+- [x] `editDailyTask()` → TaskManager.getDailyTaskById()
 - [x] `saveEditedDailyTask()` → TaskManager.updateDailyTask()
-- [x] `showDailyRoutine()` → TaskManager.getSortedDailyTasks()
+- [x] `showDailyRoutine()` → TaskManager.getSortedDailyTasks() + getDailyTasks() ✨ ENHANCED
 - [x] `startDailyTask()` → TaskManager.getDailyTaskById()
-- [ ] `completeDailyTask()` (UI only, no migration needed)
+- [x] `completeDailyTask()` → TaskManager.getDailyTaskById() ✨ NEW
 - [x] `finishDailyTask()` → TaskManager.completeDailyTask() (includes business logic)
 - [ ] 其他...
 
@@ -37,14 +37,14 @@
 - [x] `completeMilestone()` → TaskManager.getProjectById() ✨ NEW (查找部分)
 - [ ] 其他...
 
-### 待办事项 (8/~13)
+### 待办事项 (9/~13) 🔥
 - [x] `addTodo()` → TaskManager.addTodo()
 - [x] `deleteTodo()` → 新增UI函数 (显示确认对话框)
 - [x] `confirmDeleteTodo()` → TaskManager.deleteTodo()
-- [x] `editTodo()` → TaskManager.getTodoById() ✨ NEW
+- [x] `editTodo()` → TaskManager.getTodoById()
 - [x] `saveEditedTodo()` → TaskManager.updateTodo()
 - [x] `startTodo()` → TaskManager.getTodoById()
-- [ ] `completeTodo()` (UI only, no migration needed)
+- [x] `completeTodo()` → TaskManager.getTodoById() ✨ NEW
 - [x] `finishTodo()` → TaskManager.completeTodo() (includes business logic)
 - [ ] 其他...
 
@@ -53,8 +53,8 @@
 ## 📊 统计
 
 ```
-已迁移：28个函数 (68%) 🔥 冲刺75%！
-待迁移：13个函数 (32%)
+已迁移：31个函数 (75.6%) 🎉 突破75%里程碑！
+待迁移：10个函数 (24.4%)
 估算减少行数：每10个函数 ~80-120行
 总预期减少：~300-430行（当全部迁移完成）
 当前已减少：~210-260行
