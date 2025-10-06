@@ -5,7 +5,7 @@ import json
 import base64
 import uuid
 from urllib.parse import parse_qs
-from PIL import Image
+# from PIL import Image  # Disabled due to macOS system policy
 import io
 import sys
 
@@ -148,13 +148,16 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
                     save_dir = 'assets/backgrounds/blocks'
                     maintain_aspect = True
                 
-                # 处理图片
-                try:
-                    processed_image = process_image(image_bytes, target_size, maintain_aspect)
-                except Exception as e:
-                    print(f"Error processing image: {e}")
-                    self.send_error(500, "Error processing image")
-                    return
+                # 处理图片 (DISABLED: Skip PIL processing, save original)
+                # try:
+                #     processed_image = process_image(image_bytes, target_size, maintain_aspect)
+                # except Exception as e:
+                #     print(f"Error processing image: {e}")
+                #     self.send_error(500, "Error processing image")
+                #     return
+                
+                # Save original image without processing
+                processed_image = image_bytes
                 
                 # 生成唯一文件名
                 filename = f"{uuid.uuid4()}.png"
