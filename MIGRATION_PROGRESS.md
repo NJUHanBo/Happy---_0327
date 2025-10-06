@@ -2,11 +2,11 @@
 
 **目标：** 将main.js中41个任务函数迁移到使用TaskManager API
 
-**当前进度:**31/41 (75.6%) 🎉 **突破75%里程碑！**
+**当前进度:** 33/41 (80.5%) 🔥 **突破80%里程碑！**
 
 ---
 
-## ✅ 已迁移 (31个) 🎉
+## ✅ 已迁移 (33个) 🔥 80%+
 
 ### 统计和显示 (3个) ✨ NEW
 - [x] `showDialog()` → TaskManager.getDailyTasks/getProjects/getTodos() ✨ NEW
@@ -24,7 +24,7 @@
 - [x] `finishDailyTask()` → TaskManager.completeDailyTask() (includes business logic)
 - [ ] 其他...
 
-### 项目 (10/~14) 🔥 NEW
+### 项目 (11/~14) 🔥
 - [x] `confirmDeleteProject()` → TaskManager.deleteProject()
 - [x] `deleteProject()` → TaskManager.getProjectById()
 - [x] `addProject()` → TaskManager.addProject()
@@ -32,20 +32,22 @@
 - [x] `saveEditedProject()` → TaskManager.getProjectById()
 - [x] `startProject()` → TaskManager.getProjectById()
 - [x] `showProjectDetails()` → TaskManager.getProjectById()
-- [x] `completeProjectSession()` → TaskManager.getProjectById() ✨ NEW
-- [x] `finishProjectProgress()` → TaskManager.getProjectById() ✨ NEW
-- [x] `completeMilestone()` → TaskManager.getProjectById() ✨ NEW (查找部分)
+- [x] `completeProjectSession()` → TaskManager.getProjectById()
+- [x] `finishProjectProgress()` → TaskManager.getProjectById()
+- [x] `completeMilestone()` → TaskManager.getProjectById() (查找部分)
+- [x] `showProjectManager()` → TaskManager.getActiveProjects() + getProjects() ✨ ENHANCED
 - [ ] 其他...
 
-### 待办事项 (9/~13) 🔥
+### 待办事项 (10/~13) 🔥
 - [x] `addTodo()` → TaskManager.addTodo()
 - [x] `deleteTodo()` → 新增UI函数 (显示确认对话框)
 - [x] `confirmDeleteTodo()` → TaskManager.deleteTodo()
 - [x] `editTodo()` → TaskManager.getTodoById()
 - [x] `saveEditedTodo()` → TaskManager.updateTodo()
 - [x] `startTodo()` → TaskManager.getTodoById()
-- [x] `completeTodo()` → TaskManager.getTodoById() ✨ NEW
+- [x] `completeTodo()` → TaskManager.getTodoById()
 - [x] `finishTodo()` → TaskManager.completeTodo() (includes business logic)
+- [x] `showTodoMaster()` → TaskManager.getActiveTodos() + getTodos() ✨ ENHANCED
 - [ ] 其他...
 
 ---
@@ -53,8 +55,8 @@
 ## 📊 统计
 
 ```
-已迁移：31个函数 (75.6%) 🎉 突破75%里程碑！
-待迁移：10个函数 (24.4%)
+已迁移：33个函数 (80.5%) 🔥 突破80%里程碑！
+待迁移：8个函数 (19.5%)
 估算减少行数：每10个函数 ~80-120行
 总预期减少：~300-430行（当全部迁移完成）
 当前已减少：~210-260行
