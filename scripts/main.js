@@ -1400,6 +1400,12 @@ function addDailyTask() {
 
     // [Refactored] Use TaskManager
     const tm = getTaskManager();
+    if (!tm) {
+        console.error('[ERROR] TaskManager not available!');
+        alert('系统错误：任务管理器未加载');
+        return;
+    }
+    
     const task = {
         name,
         dailyTime: duration,  // TaskManager uses 'dailyTime'
@@ -1410,14 +1416,7 @@ function addDailyTask() {
         lastCompleted: null
     };
     
-    if (tm) {
-        tm.addDailyTask(task);
-    } else {
-        // Fallback
-        task.id = Date.now();
-        task.createdAt = new Date().toISOString();
-        state.dailyTasks.push(task);
-    }
+    tm.addDailyTask(task);
     saveState();
 
     // 清空表单
@@ -1740,26 +1739,14 @@ function finishDailyTask(taskId) {
     
     // Use TaskManager for core business logic
     const tm = getTaskManager();
-    let result;
-    
-    if (tm) {
-        result = tm.completeDailyTask(taskId, actualTime, rating);
-        if (!result) return;
-    } else {
-        // Fallback to original logic
-        const task = state.dailyTasks.find(t => t.id === taskId);
-        if (!task) return;
-        
-        const timeRatio = actualTime / (task.duration * 60);
-        task.completedTimes++;
-        task.lastCompleted = new Date().toISOString().split('T')[0];
-        task.streakDays = (task.streakDays || 0) + 1;
-        
-        const baseReward = 10;
-        const sawdustReward = Math.round(baseReward * (rating / 5) * (timeRatio < 1 ? (1 + (1 - timeRatio)) : 1));
-        
-        result = { task, sawdustReward, streakDays: task.streakDays };
+    if (!tm) {
+        console.error('[ERROR] TaskManager not available!');
+        alert('系统错误：任务管理器未加载');
+        return;
     }
+    
+    const result = tm.completeDailyTask(taskId, actualTime, rating);
+    if (!result) return;
     
     const { task, sawdustReward } = result;
     
@@ -1886,6 +1873,12 @@ function addTodo() {
 
     // [Refactored] Use TaskManager
     const tm = getTaskManager();
+    if (!tm) {
+        console.error('[ERROR] TaskManager not available!');
+        alert('系统错误：任务管理器未加载');
+        return;
+    }
+    
     const todo = {
         name,
         deadline,
@@ -1897,14 +1890,7 @@ function addTodo() {
         satisfaction: 0
     };
     
-    if (tm) {
-        tm.addTodo(todo);
-    } else {
-        // Fallback
-        todo.id = Date.now();
-        todo.createdAt = new Date().toISOString();
-        state.todos.push(todo);
-    }
+    tm.addTodo(todo);
     saveState();
 
     showDialog(`
@@ -2014,12 +2000,13 @@ function deleteTodo(todoId) {
 // [Refactored] Now uses TaskManager
 function confirmDeleteTodo(todoId) {
     const tm = getTaskManager();
-    if (tm) {
-        tm.deleteTodo(todoId);
-    } else {
-        // Fallback to old method if TaskManager not available
-        state.todos = state.todos.filter(todo => todo.id !== todoId);
+    if (!tm) {
+        console.error('[ERROR] TaskManager not available!');
+        alert('系统错误：任务管理器未加载');
+        return;
     }
+    
+    tm.deleteTodo(todoId);
     saveState();
     showTodoMaster();
 }
@@ -2254,28 +2241,14 @@ function finishTodo(todoId) {
     
     // Use TaskManager for core business logic
     const tm = getTaskManager();
-    let result;
-    
-    if (tm) {
-        result = tm.completeTodo(todoId, actualTime, rating);
-        if (!result) return;
-    } else {
-        // Fallback
-        const todo = state.todos.find(t => t.id === todoId);
-        if (!todo) return;
-        
-        todo.completed = true;
-        todo.completedAt = new Date().toISOString();
-        todo.satisfaction = rating;
-        
-        const timeRatio = actualTime / (todo.duration * 60 * 60);
-        const baseReward = 10;
-        const baseFlameReward = Math.round(baseReward * (rating / 5) * (timeRatio < 1 ? (1 + (1 - timeRatio)) : 1));
-        const spiritCost = todo.duration <= 0.5 ? 10 : (todo.duration <= 1 ? 20 : (todo.duration <= 2 ? 40 : 100));
-        const energyCost = Math.round((todo.duration / 8) * 100);
-        
-        result = { todo, baseFlameReward, energyCost, spiritCost };
+    if (!tm) {
+        console.error('[ERROR] TaskManager not available!');
+        alert('系统错误：任务管理器未加载');
+        return;
     }
+    
+    const result = tm.completeTodo(todoId, actualTime, rating);
+    if (!result) return;
     
     const { todo, baseFlameReward, energyCost, spiritCost } = result;
     
@@ -2449,6 +2422,12 @@ function addProject() {
 
     // [Refactored] Use TaskManager
     const tm = getTaskManager();
+    if (!tm) {
+        console.error('[ERROR] TaskManager not available!');
+        alert('系统错误：任务管理器未加载');
+        return;
+    }
+    
     const project = {
         name,
         deadline,
@@ -2460,14 +2439,7 @@ function addProject() {
         completedAt: null
     };
     
-    if (tm) {
-        tm.addProject(project);
-    } else {
-        // Fallback
-        project.id = Date.now();
-        project.createdAt = new Date().toISOString();
-        state.projects.push(project);
-    }
+    tm.addProject(project);
     saveState();
 
     showDialog(`
@@ -4241,37 +4213,21 @@ function removeBackground() {
 function completeMilestone(projectId) {
     // 获取当前项目（用于预检查）
     const tm = getTaskManager();
-    const project = tm ? tm.getProjectById(projectId) : state.projects.find(p => p.id === projectId);
+    if (!tm) {
+        console.error('[ERROR] TaskManager not available!');
+        alert('系统错误：任务管理器未加载');
+        return;
+    }
+    
+    const project = tm.getProjectById(projectId);
     if (!project) return;
     
     // 计算实际工作时长
     const workTimeInSeconds = timerState.seconds || (project.dailyTime * 60 * 60);
     
     // Use TaskManager for core business logic
-    let result;
-    
-    if (tm) {
-        result = tm.completeMilestone(projectId, workTimeInSeconds);
-        if (!result) return;
-    } else {
-        // Fallback (simplified)
-        const milestone = project.milestones[project.currentMilestone];
-        if (!milestone) return;
-        
-        const workTimeInHours = workTimeInSeconds / 3600;
-        const energyCost = Math.round((workTimeInHours / 8) * 100);
-        const spiritCost = project.interest === 'high' ? -20 : (project.interest === 'low' ? 40 : 20);
-        
-        milestone.completed = true;
-        milestone.completedAt = new Date().toISOString();
-        project.currentMilestone++;
-        
-        const isProjectComplete = project.currentMilestone >= project.milestones.length;
-        const sawdustReward = isProjectComplete ? 200 : 60;
-        const baseFlameReward = isProjectComplete ? 100 : 40;
-        
-        result = { project, milestone, energyCost, spiritCost, sawdustReward, baseFlameReward, isProjectComplete };
-    }
+    const result = tm.completeMilestone(projectId, workTimeInSeconds);
+    if (!result) return;
     
     const { milestone, energyCost, spiritCost, sawdustReward, baseFlameReward, isProjectComplete } = result;
     
@@ -4787,12 +4743,13 @@ function deleteDailyTask(taskId) {
 // [Refactored] Now uses TaskManager
 function confirmDeleteDailyTask(taskId) {
     const tm = getTaskManager();
-    if (tm) {
-        tm.deleteDailyTask(taskId);
-    } else {
-        // Fallback to old method if TaskManager not available
-        state.dailyTasks = state.dailyTasks.filter(task => task.id !== taskId);
+    if (!tm) {
+        console.error('[ERROR] TaskManager not available!');
+        alert('系统错误：任务管理器未加载');
+        return;
     }
+    
+    tm.deleteDailyTask(taskId);
     saveState();
     showDailyRoutine();
 }
@@ -5767,15 +5724,13 @@ function deleteProject(projectId) {
 // [Refactored] Now uses TaskManager
 function confirmDeleteProject(projectId) {
     const tm = getTaskManager();
-    if (tm) {
-        tm.deleteProject(projectId);
-    } else {
-        // Fallback
-        const projectIndex = state.projects.findIndex(p => p.id === projectId);
-        if (projectIndex !== -1) {
-            state.projects.splice(projectIndex, 1);
-        }
+    if (!tm) {
+        console.error('[ERROR] TaskManager not available!');
+        alert('系统错误：任务管理器未加载');
+        return;
     }
+    
+    tm.deleteProject(projectId);
     saveState();
     
     // 添加日志
