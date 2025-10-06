@@ -801,64 +801,39 @@ function showLogs() {
 // [Refactored] Now uses TaskManager.getTaskStats()
 function showStats() {
     const tm = getTaskManager();
-    
-    if (tm) {
-        const stats = tm.getTaskStats();
-        const dialogContent = `
-            <div class="dialog-main">
-                <h2>任务统计</h2>
-                <div class="stats-content">
-                    <h3>日常任务</h3>
-                    <ul>
-                        <li>总任务数: ${stats.daily.total}</li>
-                        <li>今日已完成: ${stats.daily.completedToday}</li>
-                    </ul>
-                    <h3>项目进度</h3>
-                    <ul>
-                        <li>进行中项目: ${stats.project.active}</li>
-                        <li>已完成项目: ${stats.project.completed}</li>
-                    </ul>
-                    <h3>待办事项</h3>
-                    <ul>
-                        <li>待完成: ${stats.todo.active}</li>
-                        <li>已完成: ${stats.todo.completed}</li>
-                    </ul>
-                </div>
-                <div class="dialog-buttons">
-                    <button onclick="closeDialog()">关闭</button>
-                </div>
-            </div>
-        `;
-        showDialog(dialogContent);
-    } else {
-        // Fallback to old implementation
-        const dialogContent = `
-            <div class="dialog-main">
-                <h2>任务统计</h2>
-                <div class="stats-content">
-                    <h3>日常任务</h3>
-                    <ul>
-                        <li>总任务数: ${state.dailyTasks.length}</li>
-                        <li>今日已完成: ${state.dailyTasks.filter(task => task.lastCompleted === new Date().toISOString().split('T')[0]).length}</li>
-                    </ul>
-                    <h3>项目进度</h3>
-                    <ul>
-                        <li>进行中项目: ${state.projects.filter(p => !p.completedAt).length}</li>
-                        <li>已完成项目: ${state.projects.filter(p => p.completedAt).length}</li>
-                    </ul>
-                    <h3>待办事项</h3>
-                    <ul>
-                        <li>待完成: ${state.todos.filter(t => !t.completed).length}</li>
-                        <li>已完成: ${state.todos.filter(t => t.completed).length}</li>
-                    </ul>
-                </div>
-                <div class="dialog-buttons">
-                    <button onclick="closeDialog()">关闭</button>
-                </div>
-            </div>
-        `;
-        showDialog(dialogContent);
+    if (!tm) {
+        console.error('[ERROR] TaskManager not available!');
+        alert('系统错误：任务管理器未加载');
+        return;
     }
+    
+    const stats = tm.getTaskStats();
+    const dialogContent = `
+        <div class="dialog-main">
+            <h2>任务统计</h2>
+            <div class="stats-content">
+                <h3>日常任务</h3>
+                <ul>
+                    <li>总任务数: ${stats.daily.total}</li>
+                    <li>今日已完成: ${stats.daily.completedToday}</li>
+                </ul>
+                <h3>项目进度</h3>
+                <ul>
+                    <li>进行中项目: ${stats.project.active}</li>
+                    <li>已完成项目: ${stats.project.completed}</li>
+                </ul>
+                <h3>待办事项</h3>
+                <ul>
+                    <li>待完成: ${stats.todo.active}</li>
+                    <li>已完成: ${stats.todo.completed}</li>
+                </ul>
+            </div>
+            <div class="dialog-buttons">
+                <button onclick="closeDialog()">关闭</button>
+            </div>
+        </div>
+    `;
+    showDialog(dialogContent);
 }
 
 // 显示主屏幕
@@ -1013,32 +988,16 @@ function endDay() {
 // [Refactored] Now uses TaskManager.getTaskStats()
 function generateDaySummary(previewStats) {
     const tm = getTaskManager();
-    let completedDailyTasks, completedTodos, completedMilestones, totalDailyTasks;
-    
-    if (tm) {
-        const stats = tm.getTaskStats();
-        completedDailyTasks = stats.daily.completedToday;
-        completedTodos = stats.todo.completedToday;
-        completedMilestones = stats.milestonesCompletedToday;
-        totalDailyTasks = stats.daily.total;
-    } else {
-        // Fallback to old logic
-        completedDailyTasks = state.dailyTasks.filter(task => 
-            task.lastCompleted === new Date().toISOString().split('T')[0]
-        ).length;
-        
-        completedTodos = state.todos.filter(todo => 
-            todo.completedAt && new Date(todo.completedAt).toISOString().split('T')[0] === new Date().toISOString().split('T')[0]
-        ).length;
-        
-        completedMilestones = state.projects.reduce((count, project) => {
-            return count + project.milestones.filter(milestone => 
-                milestone.completedAt && new Date(milestone.completedAt).toISOString().split('T')[0] === new Date().toISOString().split('T')[0]
-            ).length;
-        }, 0);
-        
-        totalDailyTasks = state.dailyTasks.length;
+    if (!tm) {
+        console.error('[ERROR] TaskManager not available!');
+        return '<h2>系统错误</h2><p>任务管理器未加载，无法生成总结</p>';
     }
+    
+    const stats = tm.getTaskStats();
+    const completedDailyTasks = stats.daily.completedToday;
+    const completedTodos = stats.todo.completedToday;
+    const completedMilestones = stats.milestonesCompletedToday;
+    const totalDailyTasks = stats.daily.total;
 
     return `
         <h2>今日总结</h2>
@@ -2081,27 +2040,20 @@ function saveEditedTodo(todoId) {
 
     // Use TaskManager
     const tm = getTaskManager();
-    if (tm) {
-        tm.updateTodo(todoId, {
-            name,
-            deadline,
-            duration: duration,           // main.js uses 'duration' (hours)
-            estimatedTime: duration,      // TaskManager compatibility
-            importance: importance,       // Keep as string
-            urgency: urgency             // Keep as string
-        });
-    } else {
-        // Fallback
-        const todo = state.todos.find(t => t.id === todoId);
-        if (todo) {
-            todo.name = name;
-            todo.deadline = deadline;
-            todo.duration = duration;
-            todo.estimatedTime = duration;
-            todo.importance = importance;
-            todo.urgency = urgency;
-        }
+    if (!tm) {
+        console.error('[ERROR] TaskManager not available!');
+        alert('系统错误：任务管理器未加载');
+        return;
     }
+    
+    tm.updateTodo(todoId, {
+        name,
+        deadline,
+        duration: duration,           // main.js uses 'duration' (hours)
+        estimatedTime: duration,      // TaskManager compatibility
+        importance: importance,       // Keep as string
+        urgency: urgency             // Keep as string
+    });
 
     saveState();
     showTodoMaster();
@@ -4814,23 +4766,18 @@ function saveEditedDailyTask(taskId) {
 
     // Use TaskManager
     const tm = getTaskManager();
-    if (tm) {
-        tm.updateDailyTask(taskId, {
-            name,
-            dailyTime: duration,
-            importance: parseInt(importance),
-            interest: parseInt(interest)
-        });
-    } else {
-        // Fallback
-        const task = state.dailyTasks.find(t => t.id === taskId);
-        if (task) {
-            task.name = name;
-            task.duration = duration;
-            task.importance = importance;
-            task.interest = interest;
-        }
+    if (!tm) {
+        console.error('[ERROR] TaskManager not available!');
+        alert('系统错误：任务管理器未加载');
+        return;
     }
+    
+    tm.updateDailyTask(taskId, {
+        name,
+        dailyTime: duration,
+        importance: parseInt(importance),
+        interest: parseInt(interest)
+    });
 
     saveState();
     showDailyRoutine();
