@@ -58,6 +58,7 @@ class DialogManager {
                 <div class="dialog-buttons">
                     ${buttons.map(btn => `
                         <button 
+                            ${btn.id ? `id="${btn.id}"` : ''}
                             class="${btn.className || ''}"
                             onclick="${btn.onClick}"
                         >${btn.text}</button>
