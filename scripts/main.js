@@ -287,6 +287,12 @@ function initializeApp() {
             updateBackgrounds();
             loadEncouragements();
             
+            // 初始化DialogManager
+            if (window.dialogManager) {
+                window.dialogManager.init();
+                console.log('[Refactoring] DialogManager initialized');
+            }
+            
             // 恢复夜晚视频
             const savedVideoPath = localStorage.getItem('nightVideoPath');
             if (savedVideoPath && state.nightTransition) {
@@ -376,6 +382,12 @@ function initializeApp() {
     
     // 加载鼓励语
     loadEncouragements();
+    
+    // 初始化DialogManager (fallback路径)
+    if (window.dialogManager) {
+        window.dialogManager.init();
+        console.log('[Refactoring] DialogManager initialized (fallback path)');
+    }
     
     // 恢复保存的视频路径
     const savedVideoPath = localStorage.getItem('nightVideoPath');
