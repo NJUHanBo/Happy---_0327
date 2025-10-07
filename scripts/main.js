@@ -669,36 +669,32 @@ function closeDialog() {
 }
 
 // 杂念垃圾桶功能
-// [Refactored] Use DialogManager
-// 注意：这个对话框比较特殊，有内部状态切换，按钮在content内部
+// [NOTE] 保留原始showDialog实现 - 此对话框需要动态状态切换，不适合迁移到DialogManager
 function showThoughtBin() {
     // 获取所有杂念记录的数量
     const thoughtKeys = Object.keys(localStorage).filter(key => key.startsWith('thought_'));
     
-    dialogManager.show({
-        title: '杂念垃圾桶',
-        content: `
-            <div id="thought-menu">
-                <p>要开始15分钟的杂念随手写吗？</p>
-                <div class="dialog-buttons">
-                    <button onclick="startThoughtTimer()" id="start-thought-btn">开始</button>
-                    ${thoughtKeys.length > 0 ? '<button onclick="showRandomThought()">翻翻垃圾桶</button>' : ''}
-                    <button onclick="closeDialog()">返回</button>
-                </div>
+    showDialog(`
+        <h2>杂念垃圾桶</h2>
+        <div id="thought-menu">
+            <p>要开始15分钟的杂念随手写吗？</p>
+            <div class="dialog-buttons">
+                <button onclick="startThoughtTimer()" id="start-thought-btn">开始</button>
+                ${thoughtKeys.length > 0 ? '<button onclick="showRandomThought()">翻翻垃圾桶</button>' : ''}
+                <button onclick="closeDialog()">返回</button>
             </div>
-            <div id="thought-content" style="display: none;">
-                <div class="timer-display">
-                    <span id="timer">15:00</span>
-                </div>
-                <textarea id="thought-text" placeholder="在这里写下你的杂念..."></textarea>
-                <div class="dialog-buttons">
-                    <button onclick="finishThought()">完成</button>
-                    <button onclick="closeDialog()">取消</button>
-                </div>
+        </div>
+        <div id="thought-content" style="display: none;">
+            <div class="timer-display">
+                <span id="timer">15:00</span>
             </div>
-        `,
-        buttons: [] // 按钮在content内部，不使用外部按钮
-    });
+            <textarea id="thought-text" placeholder="在这里写下你的杂念..."></textarea>
+            <div class="dialog-buttons">
+                <button onclick="finishThought()">完成</button>
+                <button onclick="closeDialog()">取消</button>
+            </div>
+        </div>
+    `);
 }
 
 // 完成杂念写作
