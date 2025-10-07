@@ -603,6 +603,8 @@ function updateUI() {
 
 // 显示对话框
 // [Refactored] Now uses TaskManager for task list display
+// [DEPRECATED] 请使用 dialogManager.show() 替代
+// 保留此函数用于向后兼容，剩余调用将逐步迁移
 function showDialog(content, showTaskList = false, taskType = '') {
     const dialogContainer = document.getElementById('dialog-container');
     let taskListHtml = '';
