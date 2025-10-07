@@ -1323,39 +1323,68 @@ style.textContent = `
 document.head.appendChild(style);
 
 // 显示添加日常任务对话框
+// [Refactored] Now uses DialogManager.showForm()
 function showAddDailyTasksDialog() {
-    showDialog(`
-        <h2>添加日常任务</h2>
-        <p>让我们添加需要长期坚持的日常任务</p>
-        <div class="form-group">
-            <label for="task-name">任务名称：</label>
-            <input type="text" id="task-name" placeholder="例如：英语学习、阅读、冥想、锻炼身体">
-        </div>
-        <div class="form-group">
-            <label for="task-duration">每天计划时长（分钟）：</label>
-            <input type="number" id="task-duration" min="5" step="5" value="30">
-        </div>
-        <div class="form-group">
-            <label for="task-importance">重要性：</label>
-            <select id="task-importance">
-                <option value="high">非常重要</option>
-                <option value="medium">一般重要</option>
-                <option value="low">不重要</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="task-interest">兴趣程度：</label>
-            <select id="task-interest">
-                <option value="high">很感兴趣</option>
-                <option value="medium">一般</option>
-                <option value="low">不感兴趣</option>
-            </select>
-        </div>
-        <div class="dialog-buttons">
-            <button onclick="addDailyTask()">添加任务</button>
-            <button onclick="skipDailyTasks()">暂不添加</button>
-        </div>
-    `, true, 'daily');
+    // 构建任务列表侧边栏
+    const tm = getTaskManager();
+    const dailyTasks = tm ? tm.getDailyTasks() : state.dailyTasks || [];
+    const taskListHtml = `
+        <div class="task-list-header">已添加的日常任务</div>
+        <ul class="task-list">
+            ${dailyTasks.map(task => `
+                <li class="task-list-item">
+                    <div>${task.name}</div>
+                    <small>每日${task.duration || task.dailyTime}分钟</small>
+                </li>
+            `).join('')}
+        </ul>
+    `;
+    
+    dialogManager.showForm({
+        title: '添加日常任务',
+        description: '让我们添加需要长期坚持的日常任务',
+        fields: [
+            {
+                type: 'text',
+                id: 'task-name',
+                label: '任务名称',
+                placeholder: '例如：英语学习、阅读、冥想、锻炼身体'
+            },
+            {
+                type: 'number',
+                id: 'task-duration',
+                label: '每天计划时长（分钟）',
+                min: 5,
+                step: 5,
+                value: 30
+            },
+            {
+                type: 'select',
+                id: 'task-importance',
+                label: '重要性',
+                options: [
+                    { value: 'high', text: '非常重要' },
+                    { value: 'medium', text: '一般重要' },
+                    { value: 'low', text: '不重要' }
+                ]
+            },
+            {
+                type: 'select',
+                id: 'task-interest',
+                label: '兴趣程度',
+                options: [
+                    { value: 'high', text: '很感兴趣' },
+                    { value: 'medium', text: '一般' },
+                    { value: 'low', text: '不感兴趣' }
+                ]
+            }
+        ],
+        onSubmit: 'addDailyTask()',
+        onCancel: 'skipDailyTasks()',
+        submitText: '添加任务',
+        cancelText: '暂不添加',
+        sidebar: taskListHtml
+    });
 }
 
 // 添加日常任务
@@ -1791,43 +1820,74 @@ function calculateFlameReward(baseReward) {
 }
 
 // 显示添加待办事项对话框
+// [Refactored] Now uses DialogManager.showForm()
 function showAddTodosDialog() {
-    showDialog(`
-        <h2>添加待办事项</h2>
-        <p>让我们添加需要一周内完成的事项</p>
-        <div class="form-group">
-            <label for="todo-name">事项名称：</label>
-            <input type="text" id="todo-name" placeholder="例如：办签证、给猫洗澡">
-        </div>
-        <div class="form-group">
-            <label for="todo-deadline">截止日期：</label>
-            <input type="date" id="todo-deadline" min="${new Date().toISOString().split('T')[0]}">
-        </div>
-        <div class="form-group">
-            <label for="todo-duration">预计花费时长（小时）：</label>
-            <input type="number" id="todo-duration" min="0.5" step="0.5" value="1">
-        </div>
-        <div class="form-group">
-            <label for="todo-importance">重要性：</label>
-            <select id="todo-importance">
-                <option value="high">非常重要</option>
-                <option value="medium">一般重要</option>
-                <option value="low">不重要</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="todo-urgency">紧急程度：</label>
-            <select id="todo-urgency">
-                <option value="high">很紧急</option>
-                <option value="medium">一般紧急</option>
-                <option value="low">不紧急</option>
-            </select>
-        </div>
-        <div class="dialog-buttons">
-            <button onclick="addTodo()">添加事项</button>
-            <button onclick="skipTodos()">暂不添加</button>
-        </div>
-    `, true, 'todo');
+    // 构建任务列表侧边栏
+    const tm = getTaskManager();
+    const todos = tm ? tm.getTodos() : state.todos || [];
+    const taskListHtml = `
+        <div class="task-list-header">已添加的待办事项</div>
+        <ul class="task-list">
+            ${todos.map(todo => `
+                <li class="task-list-item">
+                    <div>${todo.name}</div>
+                    <small>预计${todo.duration || todo.estimatedTime}小时</small>
+                </li>
+            `).join('')}
+        </ul>
+    `;
+    
+    dialogManager.showForm({
+        title: '添加待办事项',
+        description: '让我们添加需要一周内完成的事项',
+        fields: [
+            {
+                type: 'text',
+                id: 'todo-name',
+                label: '事项名称',
+                placeholder: '例如：办签证、给猫洗澡'
+            },
+            {
+                type: 'date',
+                id: 'todo-deadline',
+                label: '截止日期',
+                min: new Date().toISOString().split('T')[0]
+            },
+            {
+                type: 'number',
+                id: 'todo-duration',
+                label: '预计花费时长（小时）',
+                min: 0.5,
+                step: 0.5,
+                value: 1
+            },
+            {
+                type: 'select',
+                id: 'todo-importance',
+                label: '重要性',
+                options: [
+                    { value: 'high', text: '非常重要' },
+                    { value: 'medium', text: '一般重要' },
+                    { value: 'low', text: '不重要' }
+                ]
+            },
+            {
+                type: 'select',
+                id: 'todo-urgency',
+                label: '紧急程度',
+                options: [
+                    { value: 'high', text: '很紧急' },
+                    { value: 'medium', text: '一般紧急' },
+                    { value: 'low', text: '不紧急' }
+                ]
+            }
+        ],
+        onSubmit: 'addTodo()',
+        onCancel: 'skipTodos()',
+        submitText: '添加事项',
+        cancelText: '暂不添加',
+        sidebar: taskListHtml
+    });
 }
 
 // 添加待办事项
@@ -2282,9 +2342,24 @@ style.textContent += `
 `;
 
 // 显示添加项目对话框
+// [Refactored] Now uses DialogManager.show()
 function showAddProjectsDialog() {
-    showDialog(`
-        <h2>添加项目</h2>
+    // 构建项目列表侧边栏
+    const tm = getTaskManager();
+    const projects = tm ? tm.getProjects() : state.projects || [];
+    const taskListHtml = `
+        <div class="task-list-header">已添加的项目</div>
+        <ul class="task-list">
+            ${projects.map(project => `
+                <li class="task-list-item">
+                    <div>${project.name}</div>
+                    <small>截止：${new Date(project.deadline).toLocaleDateString()}</small>
+                </li>
+            `).join('')}
+        </ul>
+    `;
+    
+    const formContent = `
         <p>让我们添加需要近期完成的项目</p>
         <div class="form-group">
             <label for="project-name">项目名称：</label>
@@ -2319,11 +2394,17 @@ function showAddProjectsDialog() {
             <div class="milestone-list"></div>
             <button onclick="addMilestoneInput()">添加节点</button>
         </div>
-        <div class="dialog-buttons">
-            <button onclick="addProject()">添加项目</button>
-            <button onclick="skipProjects()">暂不添加</button>
-        </div>
-    `, true, 'project');
+    `;
+    
+    dialogManager.show({
+        title: '添加项目',
+        content: formContent,
+        buttons: [
+            { text: '添加项目', onClick: 'addProject()' },
+            { text: '暂不添加', onClick: 'skipProjects()' }
+        ],
+        sidebar: taskListHtml
+    });
     
     // 添加第一个节点输入
     addMilestoneInput();
