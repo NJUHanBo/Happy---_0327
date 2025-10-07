@@ -429,14 +429,15 @@ function setupEventListeners() {
     document.getElementById('task-stats').addEventListener('click', showStats);
     document.getElementById('end-day').addEventListener('click', endDay);
     document.getElementById('exit').addEventListener('click', () => {
-        showDialog(`
-            <h2>确认退出</h2>
-            <p>确定要退出应用吗？</p>
-            <div class="dialog-buttons">
-                <button onclick="window.close()">确定退出</button>
-                <button onclick="closeDialog()">取消</button>
-            </div>
-        `);
+        // [Refactored] Now uses DialogManager.showConfirm()
+        dialogManager.showConfirm({
+            title: '确认退出',
+            message: '确定要退出应用吗？',
+            confirmText: '确定退出',
+            cancelText: '取消',
+            onConfirm: 'window.close()',
+            onCancel: 'closeDialog()'
+        });
     });
 }
 
@@ -478,25 +479,24 @@ async function showTips() {
         
         const tipsHtml = tips.map(tip => `<p class="tip-item">${tip}</p>`).join('');
         
-        showDialog(`
-            <h2>玩法建议</h2>
-            <div class="tips-content">
-                ${tipsHtml}
-            </div>
-            <div class="dialog-buttons">
-                <button onclick="closeDialog()">关闭</button>
-            </div>
-        `);
+        // [Refactored] Now uses DialogManager.show()
+        dialogManager.show({
+            title: '玩法建议',
+            content: `<div class="tips-content">${tipsHtml}</div>`,
+            buttons: [{
+                text: '关闭',
+                onClick: 'closeDialog()'
+            }]
+        });
         
     } catch (error) {
         console.error('加载提示失败:', error);
-        showDialog(`
-            <h2>玩法建议</h2>
-            <p>加载提示失败,请稍后再试。</p>
-            <div class="dialog-buttons">
-                <button onclick="closeDialog()">关闭</button>
-            </div>
-        `);
+        // [Refactored] Now uses DialogManager.showInfo()
+        dialogManager.showInfo({
+            title: '玩法建议',
+            message: '加载提示失败,请稍后再试。',
+            buttonText: '关闭'
+        });
     }
 }
 
@@ -757,6 +757,7 @@ function showRandomThought() {
 }
 
 // 显示日志
+// [Refactored] Now uses DialogManager.show()
 function showLogs() {
     // 按天数分组日志
     const groupedLogs = {};
@@ -784,33 +785,36 @@ function showLogs() {
         `)
         .join('') || '暂无记录';
 
-    const dialogContent = `
-        <div class="dialog-main">
-            <h2>回顾日志</h2>
-            <div class="logs-content">
-                <h3>今日统计</h3>
-                <ul>
-                    <li>当前木屑: ${state.stats.sawdust}</li>
-                    <li>当前火苗: ${state.stats.flame}</li>
-                    <li>累计灰烬: ${state.stats.ash || 0}</li>
-                    <li>剩余体力: ${state.stats.energy}/100</li>
-                    <li>剩余精力: ${state.stats.spirit}/100</li>
-                </ul>
-                <h3>详细记录</h3>
-                <div class="log-entries">
-                    ${logsHtml}
-                </div>
-            </div>
-            <div class="dialog-buttons">
-                <button onclick="closeDialog()">关闭</button>
+    const logsContent = `
+        <div class="logs-content">
+            <h3>今日统计</h3>
+            <ul>
+                <li>当前木屑: ${state.stats.sawdust}</li>
+                <li>当前火苗: ${state.stats.flame}</li>
+                <li>累计灰烬: ${state.stats.ash || 0}</li>
+                <li>剩余体力: ${state.stats.energy}/100</li>
+                <li>剩余精力: ${state.stats.spirit}/100</li>
+            </ul>
+            <h3>详细记录</h3>
+            <div class="log-entries">
+                ${logsHtml}
             </div>
         </div>
     `;
-    showDialog(dialogContent);
+    
+    dialogManager.show({
+        title: '回顾日志',
+        content: logsContent,
+        buttons: [{
+            text: '关闭',
+            onClick: 'closeDialog()'
+        }]
+    });
 }
 
 // 显示任务统计
 // [Refactored] Now uses TaskManager.getTaskStats()
+// [Refactored] Now uses DialogManager.show()
 function showStats() {
     const tm = getTaskManager();
     if (!tm) {
@@ -820,32 +824,34 @@ function showStats() {
     }
     
     const stats = tm.getTaskStats();
-    const dialogContent = `
-        <div class="dialog-main">
-            <h2>任务统计</h2>
-            <div class="stats-content">
-                <h3>日常任务</h3>
-                <ul>
-                    <li>总任务数: ${stats.daily.total}</li>
-                    <li>今日已完成: ${stats.daily.completedToday}</li>
-                </ul>
-                <h3>项目进度</h3>
-                <ul>
-                    <li>进行中项目: ${stats.project.active}</li>
-                    <li>已完成项目: ${stats.project.completed}</li>
-                </ul>
-                <h3>待办事项</h3>
-                <ul>
-                    <li>待完成: ${stats.todo.active}</li>
-                    <li>已完成: ${stats.todo.completed}</li>
-                </ul>
-            </div>
-            <div class="dialog-buttons">
-                <button onclick="closeDialog()">关闭</button>
-            </div>
+    const statsContent = `
+        <div class="stats-content">
+            <h3>日常任务</h3>
+            <ul>
+                <li>总任务数: ${stats.daily.total}</li>
+                <li>今日已完成: ${stats.daily.completedToday}</li>
+            </ul>
+            <h3>项目进度</h3>
+            <ul>
+                <li>进行中项目: ${stats.project.active}</li>
+                <li>已完成项目: ${stats.project.completed}</li>
+            </ul>
+            <h3>待办事项</h3>
+            <ul>
+                <li>待完成: ${stats.todo.active}</li>
+                <li>已完成: ${stats.todo.completed}</li>
+            </ul>
         </div>
     `;
-    showDialog(dialogContent);
+    
+    dialogManager.show({
+        title: '任务统计',
+        content: statsContent,
+        buttons: [{
+            text: '关闭',
+            onClick: 'closeDialog()'
+        }]
+    });
 }
 
 // 显示主屏幕
@@ -2095,20 +2101,19 @@ function startTodo(todoId) {
     if (state.stats.energy < energyCost || state.stats.spirit < spiritCost) {
         let message = '';
         if (state.stats.energy < energyCost) {
-            message += `完成这个待办事项需要 ${energyCost} 点体力，但你现在只有 ${state.stats.energy} 点体力。\n`;
+            message += `完成这个待办事项需要 ${energyCost} 点体力，但你现在只有 ${state.stats.energy} 点体力。<br>`;
         }
         if (state.stats.spirit < spiritCost) {
-            message += `完成这个待办事项需要 ${spiritCost} 点精力，但你现在只有 ${state.stats.spirit} 点精力。\n`;
+            message += `完成这个待办事项需要 ${spiritCost} 点精力，但你现在只有 ${state.stats.spirit} 点精力。<br>`;
         }
+        message += '<br>今天已经很累了，不如休息一下，明天再继续吧！';
         
-        showDialog(`
-            <h2>状态不足</h2>
-            <p>${message}</p>
-            <p>今天已经很累了，不如休息一下，明天再继续吧！</p>
-            <div class="dialog-buttons">
-                <button onclick="closeDialog()">好的</button>
-            </div>
-        `);
+        // [Refactored] Now uses DialogManager.showInfo()
+        dialogManager.showInfo({
+            title: '状态不足',
+            message: message,
+            buttonText: '好的'
+        });
         return;
     }
 
