@@ -4004,9 +4004,14 @@ function getBackgroundSettings(area) {
 }
 
 // 新增：保存背景设置
-function saveBackgroundSettings(area, path, opacity) {
+function saveBackgroundSettings(area, imageData, opacity) {
     const settings = JSON.parse(localStorage.getItem('backgroundSettings') || '{}');
-    settings[area] = { path, opacity };
+    // 使用data字段存储base64（兼容旧的path字段）
+    settings[area] = { 
+        data: imageData,  // 新字段：base64数据
+        path: imageData,  // 保留path字段用于向后兼容
+        opacity 
+    };
     localStorage.setItem('backgroundSettings', JSON.stringify(settings));
 }
 
@@ -4028,8 +4033,9 @@ function setupBackgroundHandlers() {
     select.addEventListener('change', () => {
         const area = select.value;
         const settings = tempBackgrounds[area] || getBackgroundSettings(area);
-        if (settings.path) {
-            preview.style.backgroundImage = `url(${settings.path})`;
+        const imageSource = settings.data || settings.path; // 兼容旧数据的path和新数据的data
+        if (imageSource) {
+            preview.style.backgroundImage = `url(${imageSource})`;
             opacitySlider.value = settings.opacity || 75;
         } else {
             preview.style.backgroundImage = 'none';
@@ -4047,39 +4053,25 @@ function setupBackgroundHandlers() {
         const reader = new FileReader();
         reader.onload = async (e) => {
             try {
-                const imageData = e.target.result;
+                const imageData = e.target.result; // base64 data URL
                 const area = select.value;
                 
-                // 保存图片到服务器
-                const response = await fetch('/save-background', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        area,
-                        imageData
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('上传失败');
-                }
-
-                const result = await response.json();
+                console.log('[Static] Saving background image as base64 (no server needed)');
                 
-                // 保存到临时存储
+                // 直接保存到临时存储（无需服务器）
                 tempBackgrounds[area] = {
-                    path: result.path,
+                    data: imageData,  // 存储base64而非文件路径
                     opacity: parseInt(opacitySlider.value)
                 };
 
                 // 更新预览
-                preview.style.backgroundImage = `url(${result.path})`;
+                preview.style.backgroundImage = `url(${imageData})`;
                 preview.style.setProperty('--preview-opacity', opacitySlider.value / 100);
+                
+                console.log('[Static] Background image saved successfully');
             } catch (error) {
-                console.error('上传背景图片失败:', error);
-                alert('上传背景图片失败，请重试');
+                console.error('设置背景图片失败:', error);
+                alert('设置背景图片失败，请重试');
             }
         };
         reader.readAsDataURL(file);
@@ -4091,12 +4083,12 @@ function applyBackgroundSettings() {
     const area = document.getElementById('background-area-select').value;
     const opacity = parseInt(document.getElementById('background-opacity').value);
     
-    // 获取当前背景路径
+    // 获取当前背景数据（优先使用base64，兼容旧的path）
     const settings = tempBackgrounds[area] || getBackgroundSettings(area);
-    const path = settings.path;
+    const imageData = settings.data || settings.path; // 兼容性处理
     
-    // 保存设置
-    saveBackgroundSettings(area, path, opacity);
+    // 保存设置（现在data字段包含base64）
+    saveBackgroundSettings(area, imageData, opacity);
     
     // 清除临时存储
     delete tempBackgrounds[area];
@@ -4115,8 +4107,9 @@ function updateBackgrounds() {
     const characterStats = document.querySelector('.character-stats');
     if (characterStats) {
         const panelSettings = settings.panel || {};
-        if (panelSettings.path) {
-            characterStats.style.setProperty('--panel-bg-image', `url("${panelSettings.path}")`);
+        const imageSource = panelSettings.data || panelSettings.path; // 兼容新旧格式
+        if (imageSource) {
+            characterStats.style.setProperty('--panel-bg-image', `url("${imageSource}")`);
             characterStats.style.setProperty('--panel-opacity', panelSettings.opacity / 100);
         } else {
             characterStats.style.setProperty('--panel-bg-image', 'none');
@@ -4135,8 +4128,9 @@ function updateBackgrounds() {
     Object.entries(blocks).forEach(([area, element]) => {
         if (element) {
             const blockSettings = settings[area] || {};
-            if (blockSettings.path) {
-                element.style.setProperty('--block-bg-image', `url("${blockSettings.path}")`);
+            const imageSource = blockSettings.data || blockSettings.path; // 兼容新旧格式
+            if (imageSource) {
+                element.style.setProperty('--block-bg-image', `url("${imageSource}")`);
                 element.style.setProperty('--block-opacity', blockSettings.opacity / 100);
             } else {
                 element.style.setProperty('--block-bg-image', 'none');

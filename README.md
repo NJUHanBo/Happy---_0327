@@ -13,15 +13,39 @@
 - 🏖️ 度假系统：适时休息，平衡工作与生活
 - 🛍️ 愿望商店：使用灰烬兑换各种有趣道具
 
-## 安装和运行
+## 在线使用（推荐）
 
-1. 确保你的系统已安装 Python 3.6 或更高版本
-2. 克隆或下载本项目到本地
-3. 在项目目录下运行服务器：
-   ```bash
-   python server.py
-   ```
-4. 在浏览器中访问 http://localhost:8000
+**应用已完全静态化，可直接在线使用！**
+
+🔗 **在线地址：** [即将部署到GitHub Pages]
+
+无需安装任何软件，打开即用！
+
+---
+
+## 本地运行
+
+### 方法1：直接打开（最简单）
+
+```bash
+# 下载项目后，直接打开
+open index.html  # macOS
+# 或双击 index.html 文件
+```
+
+### 方法2：本地服务器（推荐，功能完整）
+
+```bash
+# 使用Python（推荐）
+python3 -m http.server 8000
+
+# 或使用Node.js
+npx serve
+```
+
+然后访问：http://localhost:8000
+
+**注意：** 本项目已移除Python服务器依赖，可以部署到任何静态托管服务！
 
 ## 使用说明
 
@@ -149,9 +173,11 @@
 ## 技术栈
 
 - 前端：原生 JavaScript、HTML5、CSS3
-- 后端：Python HTTP Server
-- 存储：LocalStorage
-- 图片处理：Canvas API
+- 存储：LocalStorage（纯前端，无需后端）
+- 图片处理：Canvas API + base64编码
+- 部署：静态托管（GitHub Pages / Vercel / Netlify）
+
+**完全静态化 - 零服务器依赖！**
 
 ## 项目架构
 
@@ -165,6 +191,14 @@ scripts/
 ```
 
 ### 版本历史
+
+**v1.0.0 (Static Edition)** - 2025-10-07
+- 🎉 **重大更新：完全静态化！**
+- ✅ 移除Python服务器依赖
+- ✅ 背景图片改用base64存储
+- ✅ 可部署到任何静态托管服务
+- ✅ 用户无需安装，打开即用
+- ✅ 保持100%向后兼容
 
 **v0.9.0 (Beta)** - 2025-10-06
 - ✅ 核心业务逻辑100%迁移到TaskManager
