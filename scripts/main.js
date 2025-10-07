@@ -4015,6 +4015,56 @@ function saveBackgroundSettings(area, imageData, opacity) {
     localStorage.setItem('backgroundSettings', JSON.stringify(settings));
 }
 
+// 新增：压缩图片以避免localStorage配额超限
+async function compressImage(file, maxWidth = 800, quality = 0.7) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                // 计算缩放后的尺寸
+                let width = img.width;
+                let height = img.height;
+                
+                if (width > maxWidth) {
+                    height = (height * maxWidth) / width;
+                    width = maxWidth;
+                }
+                
+                // 创建canvas进行压缩
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // 导出为压缩后的base64
+                const compressedData = canvas.toDataURL('image/jpeg', quality);
+                
+                // 计算压缩率
+                const originalSize = e.target.result.length;
+                const compressedSize = compressedData.length;
+                const compressionRatio = ((1 - compressedSize / originalSize) * 100).toFixed(1);
+                
+                console.log('[Static] Image compression stats:', {
+                    originalDimensions: `${img.width}x${img.height}`,
+                    compressedDimensions: `${width}x${height}`,
+                    originalSize: (originalSize / 1024).toFixed(2) + 'KB',
+                    compressedSize: (compressedSize / 1024).toFixed(2) + 'KB',
+                    saved: compressionRatio + '%'
+                });
+                
+                resolve(compressedData);
+            };
+            img.onerror = () => reject(new Error('图片加载失败'));
+            img.src = e.target.result;
+        };
+        reader.onerror = () => reject(new Error('文件读取失败'));
+        reader.readAsDataURL(file);
+    });
+}
+
 function setupBackgroundHandlers() {
     const upload = document.getElementById('background-upload');
     const preview = document.getElementById('background-preview');
@@ -4050,31 +4100,34 @@ function setupBackgroundHandlers() {
         const file = e.target.files[0];
         if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            try {
-                const imageData = e.target.result; // base64 data URL
-                const area = select.value;
-                
-                console.log('[Static] Saving background image as base64 (no server needed)');
-                
-                // 直接保存到临时存储（无需服务器）
-                tempBackgrounds[area] = {
-                    data: imageData,  // 存储base64而非文件路径
-                    opacity: parseInt(opacitySlider.value)
-                };
+        try {
+            console.log('[Static] Processing image...', {
+                originalSize: (file.size / 1024).toFixed(2) + 'KB',
+                type: file.type
+            });
+            
+            // 压缩图片以避免localStorage配额超限
+            const compressedImageData = await compressImage(file, 800, 0.7);
+            
+            const area = select.value;
+            
+            console.log('[Static] Image compressed successfully');
+            
+            // 保存到临时存储（无需服务器）
+            tempBackgrounds[area] = {
+                data: compressedImageData,
+                opacity: parseInt(opacitySlider.value)
+            };
 
-                // 更新预览
-                preview.style.backgroundImage = `url(${imageData})`;
-                preview.style.setProperty('--preview-opacity', opacitySlider.value / 100);
-                
-                console.log('[Static] Background image saved successfully');
-            } catch (error) {
-                console.error('设置背景图片失败:', error);
-                alert('设置背景图片失败，请重试');
-            }
-        };
-        reader.readAsDataURL(file);
+            // 更新预览
+            preview.style.backgroundImage = `url(${compressedImageData})`;
+            preview.style.setProperty('--preview-opacity', opacitySlider.value / 100);
+            
+            console.log('[Static] Background image saved successfully');
+        } catch (error) {
+            console.error('设置背景图片失败:', error);
+            alert('设置背景图片失败: ' + error.message);
+        }
     });
 }
 
