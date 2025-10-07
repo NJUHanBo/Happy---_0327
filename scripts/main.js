@@ -61,33 +61,37 @@ function showProjectDetails(projectId) {
         `;
     }).join('');
     
-    showDialog(`
-        <h2>项目详情: ${project.name}</h2>
-        <div class="project-details">
-            <div class="project-info">
-                <p><strong>截止日期:</strong> ${new Date(project.deadline).toLocaleDateString()}</p>
-                <p><strong>每日投入时间:</strong> ${project.dailyTime}小时</p>
-                <p><strong>重要性:</strong> ${getImportanceText(project.importance)}</p>
-                <p><strong>兴趣度:</strong> ${getInterestText(project.interest)}</p>
-                <p><strong>总体进度:</strong> ${completedMilestones}/${totalMilestones} 节点 (${progress}%)</p>
-                <p><strong>已花费总时间:</strong> ${totalTimeSpent.toFixed(1)}小时</p>
-                <p><strong>创建于:</strong> ${new Date(project.createdAt).toLocaleDateString()}</p>
-                ${project.completedAt ? `<p><strong>完成于:</strong> ${new Date(project.completedAt).toLocaleDateString()}</p>` : ''}
+    // [Refactored] Use DialogManager
+    dialogManager.show({
+        title: `项目详情: ${project.name}`,
+        content: `
+            <div class="project-details">
+                <div class="project-info">
+                    <p><strong>截止日期:</strong> ${new Date(project.deadline).toLocaleDateString()}</p>
+                    <p><strong>每日投入时间:</strong> ${project.dailyTime}小时</p>
+                    <p><strong>重要性:</strong> ${getImportanceText(project.importance)}</p>
+                    <p><strong>兴趣度:</strong> ${getInterestText(project.interest)}</p>
+                    <p><strong>总体进度:</strong> ${completedMilestones}/${totalMilestones} 节点 (${progress}%)</p>
+                    <p><strong>已花费总时间:</strong> ${totalTimeSpent.toFixed(1)}小时</p>
+                    <p><strong>创建于:</strong> ${new Date(project.createdAt).toLocaleDateString()}</p>
+                    ${project.completedAt ? `<p><strong>完成于:</strong> ${new Date(project.completedAt).toLocaleDateString()}</p>` : ''}
+                </div>
+                
+                <h3>项目里程碑</h3>
+                <div class="milestones-container">
+                    ${milestonesHtml}
+                </div>
             </div>
-            
-            <h3>项目里程碑</h3>
-            <div class="milestones-container">
-                ${milestonesHtml}
-            </div>
-            
-            <div class="dialog-buttons">
-                ${!project.completedAt ? `<button onclick="startProject(${project.id})">继续任务</button>` : ''}
-                ${!project.completedAt ? `<button onclick="editProject(${project.id})">编辑项目</button>` : ''}
-                <button onclick="deleteProject(${project.id})">删除项目</button>
-                <button onclick="closeDialog()">返回</button>
-            </div>
-        </div>
-    `);
+        `,
+        buttons: [
+            ...(!project.completedAt ? [
+                { text: '继续任务', onClick: `startProject(${project.id})` },
+                { text: '编辑项目', onClick: `editProject(${project.id})` }
+            ] : []),
+            { text: '删除项目', onClick: `deleteProject(${project.id})` },
+            { text: '返回', onClick: 'closeDialog()' }
+        ]
+    });
     
     // 添加项目详情样式
     const styleElement = document.createElement('style');
@@ -665,31 +669,30 @@ function closeDialog() {
 }
 
 // 杂念垃圾桶功能
+// [Refactored] Use DialogManager
 function showThoughtBin() {
     // 获取所有杂念记录的数量
     const thoughtKeys = Object.keys(localStorage).filter(key => key.startsWith('thought_'));
     
-    showDialog(`
-        <h2>杂念垃圾桶</h2>
-        <div id="thought-menu">
-            <p>要开始15分钟的杂念随手写吗？</p>
-            <div class="dialog-buttons">
-                <button onclick="startThoughtTimer()" id="start-thought-btn">开始</button>
-                ${thoughtKeys.length > 0 ? '<button onclick="showRandomThought()">翻翻垃圾桶</button>' : ''}
-                <button onclick="closeDialog()">返回</button>
+    dialogManager.show({
+        title: '杂念垃圾桶',
+        content: `
+            <div id="thought-menu">
+                <p>要开始15分钟的杂念随手写吗？</p>
             </div>
-        </div>
-        <div id="thought-content" style="display: none;">
-            <div class="timer-display">
-                <span id="timer">15:00</span>
+            <div id="thought-content" style="display: none;">
+                <div class="timer-display">
+                    <span id="timer">15:00</span>
+                </div>
+                <textarea id="thought-text" placeholder="在这里写下你的杂念..."></textarea>
             </div>
-            <textarea id="thought-text" placeholder="在这里写下你的杂念..."></textarea>
-            <div class="dialog-buttons">
-                <button onclick="finishThought()">完成</button>
-                <button onclick="closeDialog()">取消</button>
-            </div>
-        </div>
-    `);
+        `,
+        buttons: [
+            { text: '开始', onClick: 'startThoughtTimer()', id: 'start-thought-btn' },
+            ...(thoughtKeys.length > 0 ? [{ text: '翻翻垃圾桶', onClick: 'showRandomThought()' }] : []),
+            { text: '返回', onClick: 'closeDialog()' }
+        ]
+    });
 }
 
 // 完成杂念写作
@@ -715,26 +718,22 @@ function finishThought() {
     saveState();
     updateUI();
     
-    showDialog(`
-        <h2>完成！</h2>
-        <p>你的杂念已经被收集起来了。</p>
-        <div class="dialog-buttons">
-            <button onclick="closeDialog()">确定</button>
-        </div>
-    `);
+    // [Refactored] Use DialogManager
+    dialogManager.showInfo({
+        title: '完成！',
+        message: '你的杂念已经被收集起来了。'
+    });
 }
 
 // 显示随机杂念
+// [Refactored] Use DialogManager
 function showRandomThought() {
     const thoughtKeys = Object.keys(localStorage).filter(key => key.startsWith('thought_'));
     if (thoughtKeys.length === 0) {
-        showDialog(`
-            <h2>垃圾桶是空的</h2>
-            <p>还没有收集到任何杂念呢。</p>
-            <div class="dialog-buttons">
-                <button onclick="closeDialog()">返回</button>
-            </div>
-        `);
+        dialogManager.showInfo({
+            title: '垃圾桶是空的',
+            message: '还没有收集到任何杂念呢。'
+        });
         return;
     }
     
@@ -745,17 +744,19 @@ function showRandomThought() {
     // 格式化时间戳
     const formattedDate = `${timestamp.slice(0,4)}年${timestamp.slice(4,6)}月${timestamp.slice(6,8)}日 ${timestamp.slice(8,10)}:${timestamp.slice(10,12)}:${timestamp.slice(12,14)}`;
     
-    showDialog(`
-        <h2>翻到一条杂念</h2>
-        <p class="thought-time">${formattedDate}</p>
-        <div class="thought-content">
-            ${thought.split('\n').map(line => `<p>${line}</p>`).join('')}
-        </div>
-        <div class="dialog-buttons">
-            <button onclick="showRandomThought()">再翻一条</button>
-            <button onclick="showThoughtBin()">返回</button>
-        </div>
-    `);
+    dialogManager.show({
+        title: '翻到一条杂念',
+        content: `
+            <p class="thought-time">${formattedDate}</p>
+            <div class="thought-content">
+                ${thought.split('\n').map(line => `<p>${line}</p>`).join('')}
+            </div>
+        `,
+        buttons: [
+            { text: '再翻一条', onClick: 'showRandomThought()' },
+            { text: '返回', onClick: 'showThoughtBin()' }
+        ]
+    });
 }
 
 // 显示日志
