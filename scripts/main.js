@@ -662,11 +662,8 @@ function showDialog(content, showTaskList = false, taskType = '') {
     dialogContainer.classList.remove('hidden');
 }
 
-// 关闭对话框
-function closeDialog() {
-    const dialogContainer = document.getElementById('dialog-container');
-    dialogContainer.classList.add('hidden');
-}
+// 关闭对话框 - REMOVED: 使用 dialog.js 中的统一实现
+// [Refactored] closeDialog() 已迁移到 scripts/ui/dialog.js
 
 // 杂念垃圾桶功能
 // [NOTE] 保留原始showDialog实现 - 此对话框需要动态状态切换，不适合迁移到DialogManager
